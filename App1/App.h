@@ -4,6 +4,7 @@
 #include "Common\DeviceResources.h"
 #include "App1Main.h"
 
+
 namespace App1
 {
 	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
@@ -35,11 +36,38 @@ namespace App1
 		void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
+		//Mouse
+		void OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _In_ Windows::Devices::Input::MouseEventArgs^ args);
+		//void OnKeyPressed(_In_ Windows::Devices::Input::KeyboardCapabilities^ keyboardDevice, _In_ Windows::Devices::Input::k^ args);
+
+		//void Grid_KeyUp(_In_ Platform::Object^ sender, Windows::UI::Xaml::Input::KeyboardAcceleratorInvokedEventArgs^ args);
+
+		
+
+		void OnKeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+		{
+			if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
+				int b = 0;
+				b++;
+			}
+			if (args->VirtualKey == Windows::System::VirtualKey::A) {
+				int b = 0;
+				b++;
+			}
+
+
+
+		};
+
+
+
 	private:
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		std::unique_ptr<App1Main> m_main;
 		bool m_windowClosed;
 		bool m_windowVisible;
+		float m_pitch;                     // mouse y increases down, but pitch increases up
+		float m_yaw;
 	};
 }
 

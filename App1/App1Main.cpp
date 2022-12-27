@@ -41,14 +41,33 @@ void App1Main::CreateWindowSizeDependentResources()
 }
 
 // Updates the application state once per frame.
-void App1Main::Update() 
+void App1Main::Update( Camera inCamera ) 
 {
 	// Update scene objects.
 	m_timer.Tick([&]()
-	{
+		{
+
+
+			//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+
+
+			XMMATRIX view = inCamera.GetCameraViewMatrix();
+
 		// TODO: Replace this with your app's content update functions.
-		m_sceneRenderer->Update(m_timer);
+		m_sceneRenderer->Update(m_timer );
 		m_fpsTextRenderer->Update(m_timer);
+		
+		m_fpsTextRenderer->debugText = "";
+
+		m_sceneRenderer->UpdateCameraView(view);
+
+		//m_fpsTextRenderer->debugText = m_fpsTextRenderer->newLine + "Camera Position X: 0.0";
+
+		std::string pitch = std::to_string(inCamera.GetCameraPitch());
+		std::string yaw = std::to_string(inCamera.GetCameraYaw());
+
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + +"Camera Pitch: " + pitch;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + +"Camera Yaw: " + yaw;
 	});
 }
 
@@ -97,4 +116,144 @@ void App1Main::OnDeviceRestored()
 	m_sceneRenderer->CreateDeviceDependentResources();
 	m_fpsTextRenderer->CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
+}
+
+
+
+App1::Camera::~Camera()
+{
+}
+
+App1::Camera::Camera()
+{
+	Pitch = 0.0f;
+	Yaw = 0.0f;
+	Position = XMVECTOR{ 0.0f, 1.0f, 0.0f };
+	Target = XMVECTOR{ 0.0f, 0.0f, 0.0f };
+	Up = XMVECTOR{0.0f, 1.0f, 0.0f};
+	Velocity = XMVECTOR{ 0.0f, 0.0f, 0.0f };
+	LookVector = (Target - Position);
+	XMVector3Normalize(LookVector);
+	
+}
+
+
+
+void App1::Camera::PositionCamera(float PosX, float PosY, float PosZ)
+{
+	Position = { PosX,PosY,PosZ };
+}
+
+float App1::Camera::GetCameraPitch()
+{
+	return Pitch;
+}
+
+//set pitch
+void App1::Camera::SetPitch(float NewPitch)
+{
+	Pitch = Pitch + NewPitch;
+}
+void Camera::SetStaticPitch(float NewPitch)
+{
+	Pitch = NewPitch;
+
+}
+//set yaw
+void Camera::SetYaw(float NewYaw)
+{
+	Yaw = Yaw + NewYaw;
+}
+
+void Camera::SetStaticYaw(float NewYaw)
+{
+	Yaw = NewYaw;
+}
+//get camera yaw
+float Camera::GetCameraYaw()
+{
+	return Yaw;
+}
+
+
+//get view matrix
+XMMATRIX Camera::GetCameraViewMatrix()
+{
+	return ViewMatrix;
+}
+
+
+
+void Camera::SetTarget(float TargetX, float TargetY, float TargetZ)
+{
+	XMVECTOR NewTarget{ TargetX, TargetY, TargetZ };
+	Target = NewTarget;
+}
+
+void Camera::SetTargetVector(XMVECTOR NewTarget)
+{
+	Target = NewTarget;
+}
+
+void Camera::SetViewVector(XMVECTOR NewView)
+{
+	LookVector = NewView;
+}
+
+void Camera::UpdateViewMatrix()
+{
+	//D3DXMatrixLookAtLH(&ViewMatrix, &Position, &Target, &Up);
+	ViewMatrix = XMMatrixTranspose(XMMatrixLookAtRH(Position, Target, Up));
+}
+
+
+void Camera::UpdateCamera(float ForwardUnits, float SidewardUnits)
+{
+	//Restrict the ability to look too high or too low
+	if (Pitch < -1.56f)
+		Pitch = -1.56f;
+	if (Pitch > 1.56f)
+		Pitch = 1.56f;
+
+	if (Yaw >= 6.28f)
+		Yaw = 0.0f;
+	if (Yaw <= -6.28f)
+		Yaw = 0.0f;
+
+
+
+	//Set the target of the camera
+	Target = XMVECTOR{ cosf(Pitch) * cosf(Yaw) * 10.0f, sinf(Pitch) * 10.0f, sinf(Yaw) * cosf(Pitch) * 10.0f } + Position;
+
+	//Update the Look Vector
+	//D3DXVec3Normalize(&LookVector, &(Target - Position));
+	LookVector = (Target - Position);
+	XMVector3Normalize(LookVector);
+
+
+	//We do not want to move up or down so we zero the Y variable and only
+	//move in the X and Z directions
+	XMVECTOR XZLookVector{ XMVectorGetX(LookVector), 0.0f, XMVectorGetZ(LookVector) };
+	//XZLookVector. = 0;
+	//D3DXVec3Normalize(&XZLookVector, &XZLookVector);
+	XMVector3Normalize(XZLookVector);
+
+	
+
+	XMVECTOR SideVector{ XMVectorGetZ(XZLookVector), 0.0f, -XMVectorGetX(XZLookVector) };
+	//Velocity = (XZLookVector * ForwardUnits) + (SideVector * SidewardUnits);    //when physx is implemented take a look at this section
+	//D3DXVec3Normalize(&MoveVector, &(D3DXVECTOR3((XZLookVector * ForwardUnits) + (SideVector * SidewardUnits))));
+
+	MoveVector = ((XZLookVector * ForwardUnits) + (SideVector * SidewardUnits));
+
+	XMVector3Normalize(MoveVector);
+
+	//Update the View matix                                 |
+	//D3DXMatrixLookAtLH(&ViewMatrix, &Position, &Target, &Up);
+	//D3DDevice->SetTransform(D3DTS_VIEW, &ViewMatrix);
+	ViewMatrix = XMMatrixTranspose(XMMatrixLookAtRH(Position, Target, Up));
+
+
+	Target = Position + LookVector;
+
 }

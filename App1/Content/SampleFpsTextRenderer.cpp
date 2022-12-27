@@ -6,23 +6,48 @@
 using namespace App1;
 using namespace Microsoft::WRL;
 
+
+std::string ws2s(const std::wstring& s)
+{
+	int len;
+	int slength = (int)s.length() + 1;
+	len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0);
+	std::string r(len, '\0');
+	WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, &r[0], len, 0, 0);
+	return r;
+}
+
+std::wstring s2ws(const std::string& s)
+{
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	std::wstring r(len, L'\0');
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, &r[0], len);
+	return r;
+}
+
+
 // Initializes D2D resources used for text rendering.
-SampleFpsTextRenderer::SampleFpsTextRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) : 
+SampleFpsTextRenderer::SampleFpsTextRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_text(L""),
+
 	m_deviceResources(deviceResources)
 {
+	newLine = "\n";
+	debugText = "";
 	ZeroMemory(&m_textMetrics, sizeof(DWRITE_TEXT_METRICS));
 
 	// Create device independent resources
 	ComPtr<IDWriteTextFormat> textFormat;
 	DX::ThrowIfFailed(
 		m_deviceResources->GetDWriteFactory()->CreateTextFormat(
-			L"Segoe UI",
+			L"consolas",
 			nullptr,
 			DWRITE_FONT_WEIGHT_LIGHT,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			32.0f,
+			18,
 			L"en-US",
 			&textFormat
 			)
@@ -51,14 +76,20 @@ void SampleFpsTextRenderer::Update(DX::StepTimer const& timer)
 
 	m_text = (fps > 0) ? std::to_wstring(fps) + L" FPS" : L" - FPS";
 
+	
+
+	m_text += s2ws(debugText);
+
+	Windows::Foundation::Size logicalSize = m_deviceResources->GetLogicalSize();
+
 	ComPtr<IDWriteTextLayout> textLayout;
 	DX::ThrowIfFailed(
 		m_deviceResources->GetDWriteFactory()->CreateTextLayout(
 			m_text.c_str(),
 			(uint32) m_text.length(),
 			m_textFormat.Get(),
-			240.0f, // Max width of the input text.
-			50.0f, // Max height of the input text.
+			logicalSize.Width, // Max width of the input text.
+			logicalSize.Height, // Max height of the input text.
 			&textLayout
 			)
 		);
@@ -82,10 +113,19 @@ void SampleFpsTextRenderer::Render()
 	context->BeginDraw();
 
 	// Position on the bottom right corner
+	//D2D1::Matrix3x2F screenTranslation = D2D1::Matrix3x2F::Translation(
+	//	logicalSize.Width - m_textMetrics.layoutWidth,
+	//	logicalSize.Height - m_textMetrics.height
+	//	); 
+
+
+	// Position on the top Left corner
 	D2D1::Matrix3x2F screenTranslation = D2D1::Matrix3x2F::Translation(
-		logicalSize.Width - m_textMetrics.layoutWidth,
-		logicalSize.Height - m_textMetrics.height
-		);
+		m_textMetrics.width - m_textMetrics.layoutWidth,
+		 0
+	);
+
+
 
 	context->SetTransform(screenTranslation * m_deviceResources->GetOrientationTransform2D());
 

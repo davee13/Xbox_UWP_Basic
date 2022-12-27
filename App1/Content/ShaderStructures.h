@@ -16,4 +16,7 @@ namespace App1
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 color;
 	};
+
+	
+	//float m_Yaw;
 }

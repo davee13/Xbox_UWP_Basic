@@ -2,6 +2,7 @@
 #include "App.h"
 
 #include <ppltasks.h>
+using namespace Windows::Devices::Input;
 
 using namespace App1;
 
@@ -31,7 +32,9 @@ IFrameworkView^ Direct3DApplicationSource::CreateView()
 
 App::App() :
 	m_windowClosed(false),
-	m_windowVisible(true)
+	m_windowVisible(true),
+	m_pitch(0),
+	m_yaw(0)
 {
 }
 
@@ -77,6 +80,16 @@ void App::SetWindow(CoreWindow^ window)
 	DisplayInformation::DisplayContentsInvalidated +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
 
+	// register handler for relative mouse movement events
+	Windows::Devices::Input::MouseDevice::GetForCurrentView()->MouseMoved +=
+		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &App::OnMouseMoved);
+
+	window->KeyDown +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
+
+
+
+
 	m_deviceResources->SetWindow(window);
 }
 
@@ -98,8 +111,13 @@ void App::Run()
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-			m_main->Update();
+			m_main->Camera1.UpdateCamera(0,0);
 
+			
+
+
+			m_main->Update( m_main->Camera1);
+			
 			if (m_main->Render())
 			{
 				m_deviceResources->Present();
@@ -193,4 +211,50 @@ void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
 	m_deviceResources->ValidateDevice();
+}
+
+
+void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _In_ Windows::Devices::Input::MouseEventArgs^ args)
+{
+
+	struct float2 {
+		float x;
+		float y;
+	};
+
+	float M_PI = 3.14169;
+	float rGain = 0.005;
+	float2 ROTATION_GAIN{ rGain, rGain };
+
+	float2 pointerDelta;
+	pointerDelta.x = static_cast<float>(args->MouseDelta.X);
+	pointerDelta.y = static_cast<float>(args->MouseDelta.Y);
+
+	float2 rotationDelta;
+	rotationDelta.x = -pointerDelta.x * ROTATION_GAIN.x;   // scale for control sensitivity
+	rotationDelta.y = -pointerDelta.y * ROTATION_GAIN.y;   // scale for control sensitivity
+
+	//// update our orientation based on the command
+	m_pitch = rotationDelta.y;                     // mouse y increases down, but pitch increases up
+	m_yaw = -rotationDelta.x;                     // yaw defined as CCW around y-axis
+
+	//// limit pitch to straight up or straight down
+	//float limit = (float)(M_PI / 2) - 0.01f;
+	//m_pitch = (float)__max(-limit, m_pitch);
+	//m_pitch = (float)__min(+limit, m_pitch);
+
+	//// keep longitude in useful range by wrapping
+	//if (m_yaw > M_PI)
+	//	m_yaw -= (float)M_PI * 2;
+	//else if (m_yaw < -M_PI)
+	//	m_yaw += (float)M_PI * 2;
+
+		//Rotate Camera
+	//NewCamera.SetPitch(-DInput->MouseState.lY * 0.01f);
+	//NewCamera.SetYaw(-DInput->MouseState.lX * 0.01f);
+
+	m_main->Camera1.SetPitch(m_pitch);
+	m_main->Camera1.SetYaw(m_yaw);
+
+
 }

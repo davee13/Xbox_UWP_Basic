@@ -16,8 +16,16 @@ Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceRes
 	m_tracking(false),
 	m_deviceResources(deviceResources)
 {
+	//world object data - set to default of zero
+	ScalingOrigin = { 0,0,0 };
+	Scaling = { 0,0,0 };
+	RotationOrigin = { 0,0,0 };
+	RotationQuaternion = { 0,0,0 };
+	Translation = { 0,0,0 };
+
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
+
 }
 
 // Initializes view parameters when the window size changes.
@@ -45,7 +53,7 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		fovAngleY,
 		aspectRatio,
 		0.01f,
-		100.0f
+		1000.0f
 		);
 
 	XMFLOAT4X4 orientation = m_deviceResources->GetOrientationTransform3D();
@@ -63,19 +71,40 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
 
 	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+
+
+
+
+
+
 }
 
+
 // Called once per frame, rotates the cube and calculates the model and view matrices.
-void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
+void App1::Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 {
 	if (!m_tracking)
 	{
+		
+		//update the camera
+
 		// Convert degrees to radians, then convert seconds to rotation angle
 		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
 		double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
 		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
 
-		Rotate(radians);
+		//Rotate(radians);
+
+		PositionObject(0,-1,0);
+		ScaleObject(10, 0.1, 10);
+		RotateObject(0, 0, 0);
+		ComputeWorldMatrix();
+
+
+		
+
+
+
 	}
 }
 
@@ -83,8 +112,66 @@ void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 void Sample3DSceneRenderer::Rotate(float radians)
 {
 	// Prepare to pass the updated model matrix to the shader
-	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(XMMatrixRotationY(radians)));
+	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(XMMatrixRotationX(radians)));
 }
+
+// Position the cube in 3d space
+void Sample3DSceneRenderer::PositionObject(float X, float Y, float Z)
+{
+	Translation.X = X;
+	Translation.Y = Y;
+	Translation.Z = Z;
+}
+
+// Position the cube in 3d space
+void Sample3DSceneRenderer::ScaleObject(float X, float Y, float Z)
+{
+	Scaling.X = X;
+	Scaling.Y = Y;
+	Scaling.Z = Z;
+}
+
+// Position the cube in 3d space
+void Sample3DSceneRenderer::RotateObject(float X, float Y, float Z)
+{
+
+	RotationOrigin.X = X;
+	RotationOrigin.Y = Y;
+	RotationOrigin.Z = Z;
+}
+
+// compute final World Matrix
+void Sample3DSceneRenderer::ComputeWorldMatrix()
+{
+	// Prepare to pass the updated model matrix to the shader
+	FXMVECTOR ScalingOrigin1{ ScalingOrigin.X,ScalingOrigin.Y,ScalingOrigin.Z };
+	FXMVECTOR ScalingOrientationQuaternion1{ ScalingOrientationQuaternion.X,ScalingOrientationQuaternion.Y,ScalingOrientationQuaternion.Z };
+	FXMVECTOR Scaling1{ Scaling.X,Scaling.Y,Scaling.Z };
+	HXMVECTOR Translation1{ Translation.X,Translation.Y,Translation.Z };
+	//GXMVECTOR RotationOrigin1{ RotationOrigin.X, RotationOrigin.Y, RotationOrigin.Z };
+	//HXMVECTOR RotationQuaternion1{ RotationQuaternion.X,RotationQuaternion.Y,RotationQuaternion.Z };
+	GXMVECTOR RotationOrigin1{ 0,0,0 };
+	HXMVECTOR RotationQuaternion1{ 0,0,0};
+
+
+
+	XMMATRIX World = XMMatrixTransformation(ScalingOrigin1, ScalingOrientationQuaternion1, Scaling1, RotationOrigin1, RotationQuaternion1, Translation1);
+	World = XMMatrixTranspose(World);
+
+	//apply rotation
+	XMMATRIX RotationX = XMMatrixTranspose(XMMatrixRotationX(RotationOrigin.X));
+	XMMATRIX RotationY = XMMatrixTranspose(XMMatrixRotationY(RotationOrigin.Y));
+	XMMATRIX RotationZ = XMMatrixTranspose(XMMatrixRotationZ(RotationOrigin.Z));
+
+
+	World = World *  (RotationX * RotationY * RotationZ);
+	//commit to vertex shader
+	XMStoreFloat4x4(&m_constantBufferData.model, World);
+
+}
+
+
+
 
 void Sample3DSceneRenderer::StartTracking()
 {
@@ -107,13 +194,16 @@ void Sample3DSceneRenderer::StopTracking()
 }
 
 // Renders one frame using the vertex and pixel shaders.
-void Sample3DSceneRenderer::Render()
+void Sample3DSceneRenderer::Render( )
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
 	if (!m_loadingComplete)
 	{
 		return;
 	}
+
+	//update camera
+
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
@@ -179,6 +269,21 @@ void Sample3DSceneRenderer::Render()
 		0
 		);
 }
+
+
+//update view matrix for shaders
+void App1::Sample3DSceneRenderer::UpdateCameraView(XMMATRIX inView)
+{
+
+	//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+
+	XMStoreFloat4x4(&m_constantBufferData.view, inView);
+
+}
+
+
+
+
 
 void Sample3DSceneRenderer::CreateDeviceDependentResources()
 {
@@ -322,3 +427,4 @@ void Sample3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
 }
+

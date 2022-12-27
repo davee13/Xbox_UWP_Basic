@@ -4,8 +4,16 @@
 #include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
 
+using namespace DirectX;
+
 namespace App1
 {
+	struct gameVector {
+		double X;
+		double Y;
+		double Z;
+	};
+
 	// This sample renderer instantiates a basic rendering pipeline.
 	class Sample3DSceneRenderer
 	{
@@ -16,6 +24,7 @@ namespace App1
 		void ReleaseDeviceDependentResources();
 		void Update(DX::StepTimer const& timer);
 		void Render();
+		void UpdateCameraView(XMMATRIX inView);
 		void StartTracking();
 		void TrackingUpdate(float positionX);
 		void StopTracking();
@@ -24,6 +33,11 @@ namespace App1
 
 	private:
 		void Rotate(float radians);
+		void PositionObject(float X, float Y, float Z);
+		void ScaleObject(float X, float Y, float Z);
+		void RotateObject(float X, float Y, float Z);
+		void ComputeWorldMatrix();
+
 
 	private:
 		// Cached pointer to device resources.
@@ -40,6 +54,15 @@ namespace App1
 		// System resources for cube geometry.
 		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		uint32	m_indexCount;
+
+		//control object world data
+		gameVector ScalingOrigin;
+		gameVector ScalingOrientationQuaternion;
+		gameVector Scaling;
+		gameVector RotationOrigin;
+		gameVector RotationQuaternion;
+		gameVector Translation;
+
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;

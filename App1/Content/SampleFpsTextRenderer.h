@@ -15,6 +15,8 @@ namespace App1
 		void ReleaseDeviceDependentResources();
 		void Update(DX::StepTimer const& timer);
 		void Render();
+		std::string                                    debugText;
+		std::string                                    newLine;
 
 	private:
 		// Cached pointer to device resources.
@@ -22,6 +24,7 @@ namespace App1
 
 		// Resources related to text rendering.
 		std::wstring                                    m_text;
+		
 		DWRITE_TEXT_METRICS	                            m_textMetrics;
 		Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>    m_whiteBrush;
 		Microsoft::WRL::ComPtr<ID2D1DrawingStateBlock1> m_stateBlock;
