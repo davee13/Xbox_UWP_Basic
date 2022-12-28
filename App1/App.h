@@ -13,6 +13,7 @@ namespace App1
 	public:
 		App();
 
+		
 		// IFrameworkView Methods.
 		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
 		virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
@@ -52,6 +53,7 @@ namespace App1
 	private:
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		std::unique_ptr<App1Main> m_main;
+		//std::shared_ptr<CoreWindow> &iWindow;
 		bool m_windowClosed;
 		bool m_windowVisible;
 		float m_pitch;                     // mouse y increases down, but pitch increases up

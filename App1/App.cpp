@@ -16,6 +16,8 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
+CoreWindow^ iWindow;
+
 // The main function is only used to initialize our IFrameworkView class.
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
@@ -80,12 +82,17 @@ void App::SetWindow(CoreWindow^ window)
 	DisplayInformation::DisplayContentsInvalidated +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
 
+	//input devices here
+
 	// register handler for relative mouse movement events
 	Windows::Devices::Input::MouseDevice::GetForCurrentView()->MouseMoved +=
 		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &App::OnMouseMoved);
 
 	window->KeyDown +=
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
+
+	//window->KeyUp +=
+	//	ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
 
 
 
@@ -96,7 +103,7 @@ void App::SetWindow(CoreWindow^ window)
 	//CoreWindow^ window{ CoreWindow::GetForCurrentThread() };
 	window->Activate();
 	window->SetPointerCapture();
-
+	iWindow = window;
 
 }
 
@@ -122,8 +129,8 @@ void App::Run()
 			//CoreWindow::PointerPosition::SetPointerCapture = TRUE;
 			//	= new Point(500, 500);
 
-			m_main->Camera1.UpdateCamera(0,0);
-
+			
+			m_main->Camera1.UpdateCamera();
 
 
 			//window->PointerPosition.Y = 0;
@@ -139,6 +146,7 @@ void App::Run()
 		else
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+			
 		}
 	}
 }
@@ -230,7 +238,7 @@ void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _In_ Windows::Devices::Input::MouseEventArgs^ args)
 {
 
-
+	
 
 	
 
@@ -281,20 +289,36 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
 {
 	if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
-		int b = 0;
-		b++;
+		//int b = 0;
+		//b++;
 		//just close the app for now
+		exit(-1);
+		
 
-
-		Windows::ApplicationModel::Core::CoreApplicationView ^ApplicationView;
-		//sender->Close();
+		//Windows::ApplicationModel::Core::CoreApplicationView ^ApplicationView;
+		
 		//auto view = ApplicationView->GetForCurrentView();
 		//ApplicationView->TryConsolidateAsync();
 
 	}
-	if (args->VirtualKey == Windows::System::VirtualKey::A) {
-		int b = 0;
-		b++;
+	//WASD movement
+	m_main->Camera1.ForwardUnits = 0.0;
+	m_main->Camera1.SidewardUnits = 0.0;
+	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
+		m_main->Camera1.MoveCamera(0.1);
+		m_main->Camera1.ForwardUnits = 0.1;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
+		m_main->Camera1.MoveCamera(-0.1);
+		m_main->Camera1.ForwardUnits = -0.1;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
+		m_main->Camera1.StrafeCamera(-0.1);
+		m_main->Camera1.SidewardUnits = -0.1;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
+		m_main->Camera1.StrafeCamera(0.1);
+		m_main->Camera1.SidewardUnits = 0.1;
 	}
 
 

@@ -85,7 +85,7 @@ void App1::Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 {
 	if (!m_tracking)
 	{
-		
+
 		//update the camera
 
 		// Convert degrees to radians, then convert seconds to rotation angle
@@ -95,15 +95,33 @@ void App1::Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 
 		//Rotate(radians);
 
-		PositionObject(0,-1,0);
-		ScaleObject(10, 0.1, 10);
+		PositionObject(0, -1, 0);
+		ScaleObject(100, 0.1, 100);
 		RotateObject(0, 0, 0);
 		ComputeWorldMatrix();
 
+	}
+}
 
-		
+// Called once per frame, rotates the cube and calculates the model and view matrices.
+void App1::Sample3DSceneRenderer::UpdateModel1(DX::StepTimer const& timer)
+{
+	if (!m_tracking)
+	{
 
+		//update the camera
 
+		// Convert degrees to radians, then convert seconds to rotation angle
+		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
+		double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
+		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
+
+		Rotate(radians);
+
+		//PositionObject(0, -1, 0);
+		//ScaleObject(1, 1, 1);
+		//RotateObject(0, 0, 0);
+		//ComputeWorldMatrix();
 
 	}
 }

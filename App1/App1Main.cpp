@@ -25,6 +25,7 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	m_timer.SetFixedTimeStep(true);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
+	
 }
 
 App1Main::~App1Main()
@@ -43,6 +44,8 @@ void App1Main::CreateWindowSizeDependentResources()
 // Updates the application state once per frame.
 void App1Main::Update( Camera inCamera ) 
 {
+
+	
 	// Update scene objects.
 	m_timer.Tick([&]()
 		{
@@ -51,15 +54,18 @@ void App1Main::Update( Camera inCamera )
 			//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
 
 
-			XMMATRIX view = inCamera.GetCameraViewMatrix();
-
+		XMMATRIX view = inCamera.GetCameraViewMatrix();
+		m_sceneRenderer->UpdateCameraView(view);
 		// TODO: Replace this with your app's content update functions.
-		m_sceneRenderer->Update(m_timer );
+		
+
+
+
 		m_fpsTextRenderer->Update(m_timer);
 		
 		m_fpsTextRenderer->debugText = "";
 
-		m_sceneRenderer->UpdateCameraView(view);
+		
 
 		//m_fpsTextRenderer->debugText = m_fpsTextRenderer->newLine + "Camera Position X: 0.0";
 
@@ -81,6 +87,9 @@ bool App1Main::Render()
 		return false;
 	}
 
+	//XMMATRIX view = inCamera.GetCameraViewMatrix();
+	//m_sceneRenderer->UpdateCameraView(view);
+
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// Reset the viewport to target the whole screen.
@@ -97,7 +106,19 @@ bool App1Main::Render()
 
 	// Render the scene objects.
 	// TODO: Replace this with your app's content rendering functions.
+	
+	
+			//draw the ground plane
+	m_sceneRenderer->Update(m_timer);
 	m_sceneRenderer->Render();
+	//draw the rotating cube
+	m_sceneRenderer->UpdateModel1(m_timer);
+	m_sceneRenderer->Render();
+	
+
+
+
+
 	m_fpsTextRenderer->Render();
 
 	return true;
@@ -206,8 +227,43 @@ void Camera::UpdateViewMatrix()
 	ViewMatrix = XMMatrixTranspose(XMMatrixLookAtRH(Position, Target, Up));
 }
 
+void App1::Camera::MoveCamera(float Units)
+{
 
-void Camera::UpdateCamera(float ForwardUnits, float SidewardUnits)
+	XMVECTOR vVector = Target - Position;	// Get the view vector
+	// forward positive camera speed and backward negative camera speed.
+	float Px = XMVectorGetX(Position);
+	float Py = XMVectorGetY(Position);
+	float Pz = XMVectorGetZ(Position);
+
+	//New get x, z
+	Px = Px + XMVectorGetX(vVector) * Units;
+	Pz = Pz + XMVectorGetZ(vVector) * Units;
+
+	Position={Px,Py,Pz};
+
+}
+
+void App1::Camera::StrafeCamera(float Units)
+{
+	XMVECTOR vVector = Target - Position;	// Get the view vector
+	XMVECTOR vOrthoVector;              // Orthogonal vector for the view vector
+	
+	vOrthoVector = { -XMVectorGetZ(vVector) ,0,XMVectorGetX(vVector) };
+
+	float Px = XMVectorGetX(Position);
+	float Py = XMVectorGetY(Position);
+	float Pz = XMVectorGetZ(Position);
+	// left negative -cameraspeed and right positive +cameraspeed.
+	//New get x, z
+	Px = Px + XMVectorGetX(vOrthoVector) * Units;
+	Pz = Pz + XMVectorGetZ(vOrthoVector) * Units;
+
+	Position = { Px,Py,Pz };
+}
+
+
+void Camera::UpdateCamera()
 {
 	//Restrict the ability to look too high or too low
 	if (Pitch < -1.56f)

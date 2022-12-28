@@ -31,7 +31,10 @@ namespace App1
 		XMVECTOR Velocity;
 		XMMATRIX  ViewMatrix;
 
+
 	public:
+		float ForwardUnits;
+		float SidewardUnits;
 		XMVECTOR MoveVector;
 		void PositionCamera(float PosX, float PosY, float PosZ);
 		void PositionCameraX(float PosX);
@@ -43,7 +46,7 @@ namespace App1
 		void SetStaticYaw(float NewYaw);
 
 
-		void UpdateCamera(float ForwardUnits, float SidewardUnits);
+		void UpdateCamera();
 		void UpdateViewMatrix();
 		void UpdateCameraReflection(float ForwardUnits, float SidewardUnits);
 		void MoveCamera(float Units);

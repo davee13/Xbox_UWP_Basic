@@ -22,7 +22,10 @@ namespace App1
 		void CreateDeviceDependentResources();
 		void CreateWindowSizeDependentResources();
 		void ReleaseDeviceDependentResources();
+		
 		void Update(DX::StepTimer const& timer);
+		void UpdateModel1(DX::StepTimer const& timer);
+		
 		void Render();
 		void UpdateCameraView(XMMATRIX inView);
 		void StartTracking();
