@@ -20,9 +20,6 @@
     <ClInclude Include="Common\DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClCompile Include="Common\DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClInclude Include="Content\ShaderStructures.h">
       <Filter>Content</Filter>
     </ClInclude>
@@ -71,6 +68,9 @@
       <Filter>Soruce</Filter>
     </ClCompile>
     <ClCompile Include="Content\SampleFpsTextRenderer.cpp">
+      <Filter>Soruce</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\DeviceResources.cpp">
       <Filter>Soruce</Filter>
     </ClCompile>
   </ItemGroup>

@@ -44,20 +44,8 @@ namespace App1
 
 		
 
-		void OnKeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
-		{
-			if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
-				int b = 0;
-				b++;
-			}
-			if (args->VirtualKey == Windows::System::VirtualKey::A) {
-				int b = 0;
-				b++;
-			}
+		void OnKeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 
-
-
-		};
 
 
 

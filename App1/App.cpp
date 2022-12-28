@@ -91,6 +91,13 @@ void App::SetWindow(CoreWindow^ window)
 
 
 	m_deviceResources->SetWindow(window);
+
+
+	//CoreWindow^ window{ CoreWindow::GetForCurrentThread() };
+	window->Activate();
+	window->SetPointerCapture();
+
+
 }
 
 // Initializes scene resources, or loads a previously saved app state.
@@ -111,9 +118,15 @@ void App::Run()
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
+			//keep mouse in the window
+			//CoreWindow::PointerPosition::SetPointerCapture = TRUE;
+			//	= new Point(500, 500);
+
 			m_main->Camera1.UpdateCamera(0,0);
 
-			
+
+
+			//window->PointerPosition.Y = 0;
 
 
 			m_main->Update( m_main->Camera1);
@@ -217,6 +230,10 @@ void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _In_ Windows::Devices::Input::MouseEventArgs^ args)
 {
 
+
+
+	
+
 	struct float2 {
 		float x;
 		float y;
@@ -229,6 +246,8 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 	float2 pointerDelta;
 	pointerDelta.x = static_cast<float>(args->MouseDelta.X);
 	pointerDelta.y = static_cast<float>(args->MouseDelta.Y);
+
+	
 
 	float2 rotationDelta;
 	rotationDelta.x = -pointerDelta.x * ROTATION_GAIN.x;   // scale for control sensitivity
@@ -258,3 +277,26 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 
 
 }
+
+void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+{
+	if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
+		int b = 0;
+		b++;
+		//just close the app for now
+
+
+		Windows::ApplicationModel::Core::CoreApplicationView ^ApplicationView;
+		//sender->Close();
+		//auto view = ApplicationView->GetForCurrentView();
+		//ApplicationView->TryConsolidateAsync();
+
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::A) {
+		int b = 0;
+		b++;
+	}
+
+
+
+};
