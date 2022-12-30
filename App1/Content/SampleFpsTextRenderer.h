@@ -3,6 +3,8 @@
 #include <string>
 #include "..\Common\DeviceResources.h"
 #include "..\Common\StepTimer.h"
+#include "GlobalItems.h"
+
 
 namespace App1
 {

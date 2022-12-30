@@ -43,9 +43,13 @@ namespace App1
 
 		//void Grid_KeyUp(_In_ Platform::Object^ sender, Windows::UI::Xaml::Input::KeyboardAcceleratorInvokedEventArgs^ args);
 
-		
+		void BackRequested(Platform::Object^ sender, Windows::UI::Core::BackRequestedEventArgs^ e);
+
 
 		void OnKeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+		void OnKeyUp(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+
+		//void CoreWindow_KeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 
 
 
@@ -56,8 +60,15 @@ namespace App1
 		//std::shared_ptr<CoreWindow> &iWindow;
 		bool m_windowClosed;
 		bool m_windowVisible;
-		float m_pitch;                     // mouse y increases down, but pitch increases up
-		float m_yaw;
+		//float m_pitch;                     // mouse y increases down, but pitch increases up
+		//float m_yaw;
+		//std::unique_ptr<DirectX::Keyboard> m_keyboard;
+		bool upKeyPressed;
+		bool downKeyPressed;
+		bool leftKeyPressed;
+		bool rightKeyPressed;
+
+
 	};
 }
 

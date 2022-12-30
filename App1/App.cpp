@@ -1,7 +1,9 @@
 ﻿#include "pch.h"
 #include "App.h"
-
 #include <ppltasks.h>
+#include <ppl.h>
+#include <algorithm>
+
 using namespace Windows::Devices::Input;
 
 using namespace App1;
@@ -15,6 +17,22 @@ using namespace Windows::UI::Input;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+
+//#include <concrt.h>
+//#include <winrt/Windows.Gaming.Input.h>
+//
+//using namespace Windows::Gaming::Input;
+//using namespace Windows::Gaming;
+//
+//
+//
+#include <collection.h>
+using namespace Platform::Collections;
+//
+//using namespace Platform;
+//using namespace Windows::Foundation;
+using namespace Windows::Gaming::Input;
+using namespace concurrency;
 
 CoreWindow^ iWindow;
 
@@ -35,8 +53,12 @@ IFrameworkView^ Direct3DApplicationSource::CreateView()
 App::App() :
 	m_windowClosed(false),
 	m_windowVisible(true),
-	m_pitch(0),
-	m_yaw(0)
+	upKeyPressed(false),
+	downKeyPressed(false),
+	leftKeyPressed(false),
+	rightKeyPressed(false)
+	//m_pitch(0),
+	//m_yaw(0)
 {
 }
 
@@ -91,10 +113,29 @@ void App::SetWindow(CoreWindow^ window)
 	window->KeyDown +=
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
 
+	window->KeyUp +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyUp);
+
+	//window->KeyDown +=
+		//ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, App::CoreWindow_KeyDown);
+
+
+
+		// register handler for relative mouse movement events
+	Windows::UI::Core::SystemNavigationManager::GetForCurrentView()->BackRequested +=
+		ref new EventHandler<BackRequestedEventArgs^>(this, &App::BackRequested);
+
+
+
+		
+
+
+
 	//window->KeyUp +=
 	//	ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
 
-
+			// Prevent the XBOX controller B button from automatically closing the game
+	//SystemNavigationManager->GetForCurrentView()->BackRequested += App_BackRequested;
 
 
 	m_deviceResources->SetWindow(window);
@@ -113,6 +154,27 @@ void App::Load(Platform::String^ entryPoint)
 	if (m_main == nullptr)
 	{
 		m_main = std::unique_ptr<App1Main>(new App1Main(m_deviceResources));
+
+
+		//RawGameController::RawGameControllerAdded += ref new EventHandler<RawGameController^>(
+		//	[](Platform::Object^, RawGameController^ args)
+		//{
+		//};
+				
+
+		////setup game controllers
+		//auto	m_localCollection = ref new Vector<RawGameController^>();
+
+		//auto gamecontrollers = RawGameController::RawGameControllers;
+		//for (auto gamecontroller : gamecontrollers)
+		//{
+		//	m_localCollection->Append(gamecontroller);
+		//}
+
+
+		//int b = 0;
+
+
 	}
 }
 
@@ -129,14 +191,32 @@ void App::Run()
 			//CoreWindow::PointerPosition::SetPointerCapture = TRUE;
 			//	= new Point(500, 500);
 
+			//update the camera controls - keyboard and mouse
+			Camera1->ForwardUnits = 0.0;
+			Camera1->SidewardUnits = 0.0;
+			if (upKeyPressed) {
+				Camera1->MoveCamera(0.1f);
+				Camera1->ForwardUnits = 0.1f;
+				
+			}
+			if (downKeyPressed) {
+				Camera1->MoveCamera(-0.1f);
+				Camera1->ForwardUnits = -0.1f;
+				
+			}
+			if (leftKeyPressed) {
+				Camera1->StrafeCamera(-0.1f);
+				Camera1->SidewardUnits = -0.1f;
+			}
+			if (rightKeyPressed) {
+				Camera1->StrafeCamera(0.1f);
+				Camera1->SidewardUnits = 0.1f;
+			}
 			
-			m_main->Camera1.UpdateCamera();
+			Camera1->UpdateCamera();
 
 
-			//window->PointerPosition.Y = 0;
-
-
-			m_main->Update( m_main->Camera1);
+			m_main->Update();
 			
 			if (m_main->Render())
 			{
@@ -262,8 +342,9 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 	rotationDelta.y = -pointerDelta.y * ROTATION_GAIN.y;   // scale for control sensitivity
 
 	//// update our orientation based on the command
-	m_pitch = rotationDelta.y;                     // mouse y increases down, but pitch increases up
-	m_yaw = -rotationDelta.x;                     // yaw defined as CCW around y-axis
+Camera1->SetPitch(rotationDelta.y);                     // mouse y increases down, but pitch increases up
+Camera1->SetYaw(-rotationDelta.x);                     // yaw defined as CCW around y-axis
+
 
 	//// limit pitch to straight up or straight down
 	//float limit = (float)(M_PI / 2) - 0.01f;
@@ -280,47 +361,72 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 	//NewCamera.SetPitch(-DInput->MouseState.lY * 0.01f);
 	//NewCamera.SetYaw(-DInput->MouseState.lX * 0.01f);
 
-	m_main->Camera1.SetPitch(m_pitch);
-	m_main->Camera1.SetYaw(m_yaw);
+	//Camera1->SetPitch(m_pitch);
+	//Camera1->SetYaw(m_yaw);
 
 
 }
 
+
+//the default xbox one behavior is to process as a back button click.....just bypass that 
+void App1::App::BackRequested(Platform::Object^ sender, BackRequestedEventArgs^ e)
+{
+	e->Handled = true;
+}
+
+//handle keyboard event down
 void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
 {
+
+
 	if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
-		//int b = 0;
-		//b++;
-		//just close the app for now
 		exit(-1);
-		
-
-		//Windows::ApplicationModel::Core::CoreApplicationView ^ApplicationView;
-		
-		//auto view = ApplicationView->GetForCurrentView();
-		//ApplicationView->TryConsolidateAsync();
-
 	}
 	//WASD movement
-	m_main->Camera1.ForwardUnits = 0.0;
-	m_main->Camera1.SidewardUnits = 0.0;
+	Camera1->ForwardUnits = 0.0;
+	Camera1->SidewardUnits = 0.0;
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
-		m_main->Camera1.MoveCamera(0.1);
-		m_main->Camera1.ForwardUnits = 0.1;
+		Camera1->MoveCamera(0.1f);
+		Camera1->ForwardUnits = 0.1f;
+		upKeyPressed = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
-		m_main->Camera1.MoveCamera(-0.1);
-		m_main->Camera1.ForwardUnits = -0.1;
+		Camera1->MoveCamera(-0.1f);
+		Camera1->ForwardUnits = -0.1f;
+		downKeyPressed = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
-		m_main->Camera1.StrafeCamera(-0.1);
-		m_main->Camera1.SidewardUnits = -0.1;
+		leftKeyPressed = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
-		m_main->Camera1.StrafeCamera(0.1);
-		m_main->Camera1.SidewardUnits = 0.1;
+		rightKeyPressed = true;
 	}
 
+};
 
+//handle keyboard event up
+void App1::App::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
+{
+
+
+	//if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
+	//	exit(-1);
+	//}
+
+	//WASD movement
+	Camera1->ForwardUnits = 0.0;
+	Camera1->SidewardUnits = 0.0;
+	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
+		upKeyPressed = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
+		downKeyPressed = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
+		leftKeyPressed = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
+		rightKeyPressed = false;
+	}
 
 };

@@ -2,10 +2,28 @@
 #include "App1Main.h"
 #include "Common\DirectXHelper.h"
 
+
+//
+#include <collection.h>
+using namespace Platform::Collections;
+//
+//using namespace Platform;
+//using namespace Windows::Foundation;
+using namespace Windows::Gaming::Input;
+using namespace concurrency;
+
+
 using namespace App1;
 using namespace Windows::Foundation;
 using namespace Windows::System::Threading;
 using namespace Concurrency;
+
+//#include <winrt/Windows.Gaming.Input.h>
+
+//using namespace winrt;
+
+//std::vector<RawGameController> myRawGameControllers;
+//concurrency::critical_section myLock{};
 
 // Loads and initializes application assets when the application is loaded.
 App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
@@ -25,7 +43,33 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	m_timer.SetFixedTimeStep(true);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
-	
+	//init the camera
+	Camera1 = new Camera();
+
+
+
+
+		
+	//std::vector<RawGameController> myRawGameControllers;
+	//concurrency::critical_section myLock{};
+
+
+	////check for raw game controllers
+	//for (auto const& rawGameController : RawGameController::RawGameControllers())
+	//{
+	//	// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
+	//	concurrency::critical_section::scoped_lock lock{ myLock };
+	//	auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), rawGameController) };
+
+	//	if (it == end(myRawGameControllers))
+	//	{
+	//		// This code assumes that you're interested in all raw game controllers.
+	//		myRawGameControllers.push_back(rawGameController);
+	//	}
+	//}
+
+
+	int b = 0;
 }
 
 App1Main::~App1Main()
@@ -42,7 +86,7 @@ void App1Main::CreateWindowSizeDependentResources()
 }
 
 // Updates the application state once per frame.
-void App1Main::Update( Camera inCamera ) 
+void App1Main::Update( ) 
 {
 
 	
@@ -54,26 +98,184 @@ void App1Main::Update( Camera inCamera )
 			//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
 
 
-		XMMATRIX view = inCamera.GetCameraViewMatrix();
-		m_sceneRenderer->UpdateCameraView(view);
-		// TODO: Replace this with your app's content update functions.
+	
+	concurrency::critical_section myLock{};
+
+	for (auto const& rawGameController : RawGameController::RawGameControllers)
+	{
+		// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
+		concurrency::critical_section::scoped_lock lock{ myLock };
+		auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), rawGameController) };
+
+		if (it == end(myRawGameControllers))
+		{
+			// This code assumes that you're interested in all raw game controllers.
+			myRawGameControllers.push_back(rawGameController);
+		}
+	}
+
+	//clear controller debug text
+	controllerDebugText = "";
+	int cSize = myRawGameControllers.size();
+	//get the name of the controller
+ 	if ( cSize >= 1) {
 		
+		//loop for each controller
+		for (DWORD i = 0; i < cSize; i++)    // loop through each world object
+		{
+			auto btnCount = myRawGameControllers[i]->ButtonCount;
+			auto m_currentAxisCount = myRawGameControllers[i]->AxisCount;
+			auto m_currentSwitchCount = myRawGameControllers[i]->SwitchCount;
+
+			uint16_t  HWPid = myRawGameControllers[i]->HardwareProductId;
+			uint16_t  HWVendor = myRawGameControllers[i]->HardwareVendorId;
+			Platform::String^ name = myRawGameControllers[i]->DisplayName->ToString();
+
+			string cName = PlatformString2string(name);
+
+			controllerDebugText += "Controller " + to_string(i) + ": "  + cName;
+			controllerDebugText += newLine +  "Button Count: " + to_string(btnCount);
+			controllerDebugText += newLine +  "HardWare ID: " + to_string(HWVendor);
+
+			controllerDebugText += newLine;
+
+			auto currentButtonReading = ref new Platform::Array<bool>(btnCount);
+			auto currentSwitchReading = ref new Platform::Array<GameControllerSwitchPosition>(m_currentSwitchCount);
+			auto currentAxisReading = ref new Platform::Array<double>(m_currentAxisCount);
+
+			myRawGameControllers[i]->GetCurrentReading(
+				currentButtonReading,
+				currentSwitchReading,
+				currentAxisReading);
+
+			//check each button state
+			for (uint32_t j = 0; j < btnCount; j++)
+			{
+				if (currentButtonReading[j])
+				{
+					GameControllerButtonLabel buttonLabel = myRawGameControllers[i]->GetButtonLabel(j);
+
+					//xbox 360 controllers
+					if (HWVendor == 1118) {
+						if (buttonLabel == GameControllerButtonLabel::XboxA)
+						{
+							controllerDebugText += "A is pressed.";
+						}
+						if (buttonLabel == GameControllerButtonLabel::XboxB)
+						{
+							controllerDebugText += "B is pressed.";
+						}
+						if (buttonLabel == GameControllerButtonLabel::XboxX)
+						{
+							controllerDebugText += "X is pressed.";
+						}
+						if (buttonLabel == GameControllerButtonLabel::XboxY)
+						{
+							controllerDebugText += "Y is pressed.";
+						}
+						if (buttonLabel == GameControllerButtonLabel::XboxLeftBumper)
+						{
+							controllerDebugText += "L Bumper is pressed.";
+						}
+						if (buttonLabel == GameControllerButtonLabel::XboxRightBumper)
+						{
+							controllerDebugText += "R Bumper is pressed.";
+						}
+
+					}
+
+					
+					//sony ps4 controller
+					if (HWVendor == 1356) {
+						if (currentButtonReading[1])
+						{
+							controllerDebugText += "X is pressed.";
+						}
+						if (currentButtonReading[2])
+						{
+							controllerDebugText += "O is pressed.";
+						}
+						if (currentButtonReading[0])
+						{
+							controllerDebugText += "Square is pressed.";
+						}
+						if (currentButtonReading[3])
+						{
+							controllerDebugText += "Triangle is pressed.";
+						}
+						if (currentButtonReading[4])
+						{
+							controllerDebugText += "L Bumper is pressed.";
+						}
+						if (currentButtonReading[5])
+						{
+							controllerDebugText += "R Bumper is pressed.";
+						}
+					}
+
+
+				}
+			}
+
+
+
+
+			controllerDebugText += newLine + newLine;
+		}
+
+
+		int b = 0;
+	}
+
+
+
+		// TODO: Replace this with your app's content update functions.
+	//		auto m_localCollection = ref new Vector<RawGameController^>();
+
+
+	//		
+
+	//auto gamecontrollers = RawGameController::RawGameControllers;
+	//for (auto gamecontroller : gamecontrollers)
+	//{
+	//	m_localCollection->Append(gamecontroller);
+	//}
+
+	//get the name of the controller
+	//if (myRawGameControllers.size() == 1) {
+	//	auto type = myRawGameControllers[0].GetAt(0);
+	//	
+	//	auto btnCount = type->ButtonCount;
+	//	
+	//	uint16_t  HWPid = type->HardwareProductId;
+	//	uint16_t  HWVendor = type->HardwareVendorId;
+	//	
+	//	int b = 0;
+	//}
 
 
 
 		m_fpsTextRenderer->Update(m_timer);
 		
 		m_fpsTextRenderer->debugText = "";
+		
+		std::string pitch = std::to_string(Camera1->GetCameraPitch());
+		std::string yaw = std::to_string(Camera1->GetCameraYaw());
+		std::string camPosX = std::to_string(Camera1->GetCameraPositionX());
+		std::string camPosY = std::to_string(Camera1->GetCameraPositionY());
+		std::string camPosZ = std::to_string(Camera1->GetCameraPositionZ());
 
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Camera Pitch: " + pitch;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Camera Yaw: " + yaw;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Camera Position X: " + camPosX;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Camera Position Y: " + camPosY;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Camera Position Z: " + camPosZ;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine;
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + + "Game Controller Data"; 
+		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine;
+		m_fpsTextRenderer->debugText += controllerDebugText;
 		
 
-		//m_fpsTextRenderer->debugText = m_fpsTextRenderer->newLine + "Camera Position X: 0.0";
-
-		std::string pitch = std::to_string(inCamera.GetCameraPitch());
-		std::string yaw = std::to_string(inCamera.GetCameraYaw());
-
-		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + +"Camera Pitch: " + pitch;
-		m_fpsTextRenderer->debugText += m_fpsTextRenderer->newLine + +"Camera Yaw: " + yaw;
 	});
 }
 
@@ -86,6 +288,9 @@ bool App1Main::Render()
 	{
 		return false;
 	}
+
+	XMMATRIX view = Camera1->GetCameraViewMatrix();
+	m_sceneRenderer->UpdateCameraView(view);
 
 	//XMMATRIX view = inCamera.GetCameraViewMatrix();
 	//m_sceneRenderer->UpdateCameraView(view);
@@ -118,7 +323,7 @@ bool App1Main::Render()
 
 
 
-
+	//render the text to screen
 	m_fpsTextRenderer->Render();
 
 	return true;
@@ -139,177 +344,3 @@ void App1Main::OnDeviceRestored()
 	CreateWindowSizeDependentResources();
 }
 
-
-
-App1::Camera::~Camera()
-{
-}
-
-App1::Camera::Camera()
-{
-	Pitch = 0.0f;
-	Yaw = 0.0f;
-	Position = XMVECTOR{ 0.0f, 1.0f, 0.0f };
-	Target = XMVECTOR{ 0.0f, 0.0f, 0.0f };
-	Up = XMVECTOR{0.0f, 1.0f, 0.0f};
-	Velocity = XMVECTOR{ 0.0f, 0.0f, 0.0f };
-	LookVector = (Target - Position);
-	XMVector3Normalize(LookVector);
-	
-}
-
-
-
-void App1::Camera::PositionCamera(float PosX, float PosY, float PosZ)
-{
-	Position = { PosX,PosY,PosZ };
-}
-
-float App1::Camera::GetCameraPitch()
-{
-	return Pitch;
-}
-
-//set pitch
-void App1::Camera::SetPitch(float NewPitch)
-{
-	Pitch = Pitch + NewPitch;
-}
-void Camera::SetStaticPitch(float NewPitch)
-{
-	Pitch = NewPitch;
-
-}
-//set yaw
-void Camera::SetYaw(float NewYaw)
-{
-	Yaw = Yaw + NewYaw;
-}
-
-void Camera::SetStaticYaw(float NewYaw)
-{
-	Yaw = NewYaw;
-}
-//get camera yaw
-float Camera::GetCameraYaw()
-{
-	return Yaw;
-}
-
-
-//get view matrix
-XMMATRIX Camera::GetCameraViewMatrix()
-{
-	return ViewMatrix;
-}
-
-
-
-void Camera::SetTarget(float TargetX, float TargetY, float TargetZ)
-{
-	XMVECTOR NewTarget{ TargetX, TargetY, TargetZ };
-	Target = NewTarget;
-}
-
-void Camera::SetTargetVector(XMVECTOR NewTarget)
-{
-	Target = NewTarget;
-}
-
-void Camera::SetViewVector(XMVECTOR NewView)
-{
-	LookVector = NewView;
-}
-
-void Camera::UpdateViewMatrix()
-{
-	//D3DXMatrixLookAtLH(&ViewMatrix, &Position, &Target, &Up);
-	ViewMatrix = XMMatrixTranspose(XMMatrixLookAtRH(Position, Target, Up));
-}
-
-void App1::Camera::MoveCamera(float Units)
-{
-
-	XMVECTOR vVector = Target - Position;	// Get the view vector
-	// forward positive camera speed and backward negative camera speed.
-	float Px = XMVectorGetX(Position);
-	float Py = XMVectorGetY(Position);
-	float Pz = XMVectorGetZ(Position);
-
-	//New get x, z
-	Px = Px + XMVectorGetX(vVector) * Units;
-	Pz = Pz + XMVectorGetZ(vVector) * Units;
-
-	Position={Px,Py,Pz};
-
-}
-
-void App1::Camera::StrafeCamera(float Units)
-{
-	XMVECTOR vVector = Target - Position;	// Get the view vector
-	XMVECTOR vOrthoVector;              // Orthogonal vector for the view vector
-	
-	vOrthoVector = { -XMVectorGetZ(vVector) ,0,XMVectorGetX(vVector) };
-
-	float Px = XMVectorGetX(Position);
-	float Py = XMVectorGetY(Position);
-	float Pz = XMVectorGetZ(Position);
-	// left negative -cameraspeed and right positive +cameraspeed.
-	//New get x, z
-	Px = Px + XMVectorGetX(vOrthoVector) * Units;
-	Pz = Pz + XMVectorGetZ(vOrthoVector) * Units;
-
-	Position = { Px,Py,Pz };
-}
-
-
-void Camera::UpdateCamera()
-{
-	//Restrict the ability to look too high or too low
-	if (Pitch < -1.56f)
-		Pitch = -1.56f;
-	if (Pitch > 1.56f)
-		Pitch = 1.56f;
-
-	if (Yaw >= 6.28f)
-		Yaw = 0.0f;
-	if (Yaw <= -6.28f)
-		Yaw = 0.0f;
-
-
-
-	//Set the target of the camera
-	Target = XMVECTOR{ cosf(Pitch) * cosf(Yaw) * 10.0f, sinf(Pitch) * 10.0f, sinf(Yaw) * cosf(Pitch) * 10.0f } + Position;
-
-	//Update the Look Vector
-	//D3DXVec3Normalize(&LookVector, &(Target - Position));
-	LookVector = (Target - Position);
-	XMVector3Normalize(LookVector);
-
-
-	//We do not want to move up or down so we zero the Y variable and only
-	//move in the X and Z directions
-	XMVECTOR XZLookVector{ XMVectorGetX(LookVector), 0.0f, XMVectorGetZ(LookVector) };
-	//XZLookVector. = 0;
-	//D3DXVec3Normalize(&XZLookVector, &XZLookVector);
-	XMVector3Normalize(XZLookVector);
-
-	
-
-	XMVECTOR SideVector{ XMVectorGetZ(XZLookVector), 0.0f, -XMVectorGetX(XZLookVector) };
-	//Velocity = (XZLookVector * ForwardUnits) + (SideVector * SidewardUnits);    //when physx is implemented take a look at this section
-	//D3DXVec3Normalize(&MoveVector, &(D3DXVECTOR3((XZLookVector * ForwardUnits) + (SideVector * SidewardUnits))));
-
-	MoveVector = ((XZLookVector * ForwardUnits) + (SideVector * SidewardUnits));
-
-	XMVector3Normalize(MoveVector);
-
-	//Update the View matix                                 |
-	//D3DXMatrixLookAtLH(&ViewMatrix, &Position, &Target, &Up);
-	//D3DDevice->SetTransform(D3DTS_VIEW, &ViewMatrix);
-	ViewMatrix = XMMatrixTranspose(XMMatrixLookAtRH(Position, Target, Up));
-
-
-	Target = Position + LookVector;
-
-}

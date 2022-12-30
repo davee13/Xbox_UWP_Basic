@@ -22,10 +22,11 @@ Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceRes
 	RotationOrigin = { 0,0,0 };
 	RotationQuaternion = { 0,0,0 };
 	Translation = { 0,0,0 };
+	
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
-
+	
 }
 
 // Initializes view parameters when the window size changes.
@@ -41,7 +42,7 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 	{
 		fovAngleY *= 2.0f;
 	}
-
+	
 	// Note that the OrientationTransform3D matrix is post-multiplied here
 	// in order to correctly orient the scene to match the display orientation.
 	// This post-multiplication step is required for any draw calls that are

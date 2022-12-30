@@ -20,6 +20,9 @@
     <ClInclude Include="Common\DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClCompile Include="Common\DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
     <ClInclude Include="Content\ShaderStructures.h">
       <Filter>Content</Filter>
     </ClInclude>
@@ -70,7 +73,10 @@
     <ClCompile Include="Content\SampleFpsTextRenderer.cpp">
       <Filter>Soruce</Filter>
     </ClCompile>
-    <ClCompile Include="Common\DeviceResources.cpp">
+    <ClCompile Include="GlobalItems.cpp">
+      <Filter>Soruce</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>Soruce</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,6 +94,12 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Content\SampleFpsTextRenderer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalItems.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

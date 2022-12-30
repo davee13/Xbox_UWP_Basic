@@ -6,26 +6,27 @@
 using namespace App1;
 using namespace Microsoft::WRL;
 
+//wString to std::string
+//std::string ws2s(const std::wstring& s)
+//{
+//	int len;
+//	int slength = (int)s.length() + 1;
+//	len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0);
+//	std::string r(len, '\0');
+//	WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, &r[0], len, 0, 0);
+//	return r;
+//}
 
-std::string ws2s(const std::wstring& s)
-{
-	int len;
-	int slength = (int)s.length() + 1;
-	len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0);
-	std::string r(len, '\0');
-	WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, &r[0], len, 0, 0);
-	return r;
-}
-
-std::wstring s2ws(const std::string& s)
-{
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	std::wstring r(len, L'\0');
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, &r[0], len);
-	return r;
-}
+//std:: string to wString
+//std::wstring s2ws(const std::string& s)
+//{
+//	int len;
+//	int slength = (int)s.length() + 1;
+//	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+//	std::wstring r(len, L'\0');
+//	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, &r[0], len);
+//	return r;
+//}
 
 
 // Initializes D2D resources used for text rendering.
@@ -119,18 +120,23 @@ void SampleFpsTextRenderer::Render()
 	//	); 
 
 
-	// Position on the top Left corner
-	D2D1::Matrix3x2F screenTranslation = D2D1::Matrix3x2F::Translation(
-		m_textMetrics.width - m_textMetrics.layoutWidth,
-		 0
-	);
+	// Position on the top Left corner - Trailing alignment
+	//D2D1::Matrix3x2F screenTranslation = D2D1::Matrix3x2F::Translation(
+		//m_textMetrics.width - m_textMetrics.layoutWidth,
+		 //0
+	//);
 
+	// Position on the top Left corner - Leading alignment
+	D2D1::Matrix3x2F screenTranslation = D2D1::Matrix3x2F::Translation(
+		2,
+		1
+	);
 
 
 	context->SetTransform(screenTranslation * m_deviceResources->GetOrientationTransform2D());
 
 	DX::ThrowIfFailed(
-		m_textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING)
+		m_textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING)
 		);
 
 	context->DrawTextLayout(
