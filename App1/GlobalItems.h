@@ -35,4 +35,54 @@ extern std::wstring s2ws(const std::string& s);
 extern std::string PlatformString2string(Platform::String^ s);
 
 
+
+//classes
+extern class gameControllerData
+{
+public:
+	gameControllerData();
+	~gameControllerData();
+
+	int ButtonCount;
+	int AxisCount;
+	int SwitchCount;
+
+	uint16_t  HWPid;
+	uint16_t  HWVendor;
+	Platform::String^ name;
+	string cName = PlatformString2string(name);
+
+	//std::vector<bool> ButtonReading;
+	//std::vector<GameControllerSwitchPosition> SwitchReading;
+	//std::vector<double> AxisReading;
+
+	bool upKeyPressed;
+	bool downKeyPressed;
+	bool leftKeyPressed;
+	bool rightKeyPressed;
+
+	double leftStickX;
+	double leftStickY;
+	double rightStickX;
+	double rightStickY;
+	double leftTrigger;
+	double rightTrigger;
+
+
+
+
+	void Poll(int i);
+
+private:
+
+
+};//end game controller class
+
+
+
+extern std::vector<gameControllerData*> gControllerData;
+extern int selectedController;
+extern int numControllers;
+
+
 #endif

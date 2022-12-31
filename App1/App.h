@@ -50,8 +50,8 @@ namespace App1
 		void OnKeyUp(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 
 		//void CoreWindow_KeyDown(_In_ Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
-
-
+		void OnRawControllerAdded(Platform::Object^ sender, RawGameController^ args);
+		void OnRawControllerRemoved(Platform::Object^ sender, RawGameController^ args);
 
 
 	private:
@@ -67,6 +67,7 @@ namespace App1
 		bool downKeyPressed;
 		bool leftKeyPressed;
 		bool rightKeyPressed;
+		bool tabKeyPressed;
 
 
 	};

@@ -24,6 +24,8 @@ namespace App1
 		virtual void OnDeviceLost();
 		virtual void OnDeviceRestored();
 
+		int hasRunOnce;
+
 		//default camera
 		//Camera Camera1;
 

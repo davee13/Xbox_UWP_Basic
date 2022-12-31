@@ -34,7 +34,7 @@ using namespace Platform::Collections;
 using namespace Windows::Gaming::Input;
 using namespace concurrency;
 
-CoreWindow^ iWindow;
+//CoreWindow^ iWindow;
 
 // The main function is only used to initialize our IFrameworkView class.
 [Platform::MTAThread]
@@ -121,9 +121,15 @@ void App::SetWindow(CoreWindow^ window)
 
 
 
-		// register handler for relative mouse movement events
+		// register handler for relative back button pressed - override default 'B' button behavior for xbox
 	Windows::UI::Core::SystemNavigationManager::GetForCurrentView()->BackRequested +=
 		ref new EventHandler<BackRequestedEventArgs^>(this, &App::BackRequested);
+
+
+	// Register for gamepad added and removed events.
+	RawGameController::RawGameControllerAdded += ref new EventHandler<RawGameController^>(this, &App::OnRawControllerAdded);
+	RawGameController::RawGameControllerRemoved += ref new EventHandler<RawGameController^>(this, &App::OnRawControllerRemoved);
+
 
 
 
@@ -144,9 +150,75 @@ void App::SetWindow(CoreWindow^ window)
 	//CoreWindow^ window{ CoreWindow::GetForCurrentThread() };
 	window->Activate();
 	window->SetPointerCapture();
-	iWindow = window;
+//	iWindow = window;
 
 }
+
+
+
+// index of an element
+int getIndex(vector<RawGameController^> v, RawGameController^ K)
+{
+	auto it = find(v.begin(), v.end(), K);
+
+	// If element was found
+	if (it != v.end())
+	{
+
+		// calculating the index
+		// of K
+		int index = it - v.begin();
+		return index;
+	}
+	else {
+		// If the element is not
+		// present in the vector
+		return -1;
+	}
+}
+
+
+
+//add controller
+void App::OnRawControllerAdded(Platform::Object^ sender, RawGameController^ args)
+{
+	concurrency::critical_section myLock{};
+
+		// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
+		concurrency::critical_section::scoped_lock lock{ myLock };
+		auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), args) };
+
+		if (it == end(myRawGameControllers))
+		{
+			// This code assumes that you're interested in all raw game controllers.
+			myRawGameControllers.push_back(args);
+			//gameControllerData* gameControllerData2 = new gameControllerData;
+			//gameControllerData2.btnCount = 0;
+			gControllerData.push_back(new gameControllerData);
+		}
+}
+
+//remove controller
+void App::OnRawControllerRemoved(Platform::Object^ sender, RawGameController^ args)
+{
+	concurrency::critical_section myLock{};
+	// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
+	concurrency::critical_section::scoped_lock lock{ myLock };
+	//get index 
+	int index = getIndex(myRawGameControllers, args);
+	if (index != -1) {
+		//remove controller from controller arrays
+		myRawGameControllers.erase(myRawGameControllers.begin() + index);
+		gControllerData.erase(gControllerData.begin() + index);
+	}
+	
+	//step down to the next available controller
+	selectedController = selectedController - 1;
+	if (selectedController <= -1) { selectedController = -1; }
+
+}
+
+
 
 // Initializes scene resources, or loads a previously saved app state.
 void App::Load(Platform::String^ entryPoint)
@@ -378,10 +450,24 @@ void App1::App::BackRequested(Platform::Object^ sender, BackRequestedEventArgs^ 
 void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args)
 {
 
-
+	//exit the app
 	if (args->VirtualKey == Windows::System::VirtualKey::Escape) {
 		exit(-1);
 	}
+
+	//tab key pressed
+	if (args->VirtualKey == Windows::System::VirtualKey::Tab) {
+		selectedController++;
+		//loop back to keyboard and mouse
+		if (selectedController > numControllers-1) {
+			selectedController = -1;
+		}
+		
+		tabKeyPressed = true;
+		
+	}
+
+
 	//WASD movement
 	Camera1->ForwardUnits = 0.0;
 	Camera1->SidewardUnits = 0.0;
