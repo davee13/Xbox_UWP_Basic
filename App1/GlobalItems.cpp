@@ -68,7 +68,7 @@ gameControllerData::gameControllerData()
 	leftTrigger = 0.0;
 	rightTrigger = 0.0;
 
-
+	hasRunOnce = false;
 
 
 }
@@ -154,11 +154,19 @@ void gameControllerData::Poll(int i)
 				rightTrigger = (currentAxisReading[5] - 0.5) * 2.0;
 
 				//check deadzone
-				if (abs(leftStickX) < 0.2) { leftStickX = 0; }
-				if (abs(leftStickY) < 0.2) { leftStickY = 0; }
-				if (abs(rightStickX) < 0.2) { rightStickX = 0; }
-				if (abs(rightStickY) < 0.2) { rightStickY = 0; }
+				if (abs(leftStickX) < 0.2) { leftStickX = 0; hasRunOnce = true;	}				
+				if (abs(leftStickY) < 0.2) { leftStickY = 0; hasRunOnce = true;	}
+				if (abs(rightStickX) < 0.2) { rightStickX = 0; hasRunOnce = true;}
+				if (abs(rightStickY) < 0.2) { rightStickY = 0; hasRunOnce = true;}
 
+				//prevent zero on first reading
+				if (hasRunOnce == false) {
+					if (currentAxisReading[0] == 0) { leftStickX = 0.0; }
+					if (currentAxisReading[1] == 0) { leftStickY = 0.0; }
+					if (currentAxisReading[2] == 0) { rightStickX = 0.0; }
+					if (currentAxisReading[3] == 0) { rightStickY = 0.0; }
+			
+				}
 
 				//controllerDebugText += "Left Stick X :" + to_string(leftStickX);
 				//controllerDebugText += "Right Stick X :" + to_string(rightStickX);

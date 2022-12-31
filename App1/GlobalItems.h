@@ -74,7 +74,7 @@ public:
 	void Poll(int i);
 
 private:
-
+	bool hasRunOnce;
 
 };//end game controller class
 
