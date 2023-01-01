@@ -32,7 +32,7 @@ using namespace Platform::Collections;
 //using namespace Platform;
 //using namespace Windows::Foundation;
 using namespace Windows::Gaming::Input;
-using namespace concurrency;
+//using namespace concurrency;
 
 //CoreWindow^ iWindow;
 
