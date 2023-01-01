@@ -133,44 +133,16 @@ void App1Main::CreateWindowSizeDependentResources()
 void App1Main::Update()
 {
 
-
-
-
 	//give the system a cycle to sync all resources
-	if (hasRunOnce < 1) {
-		hasRunOnce++;
-
-		//// Register for gamepad added and removed events.
-		//RawGameController::RawGameControllerAdded += ref new EventHandler<RawGameController^>(&OnRawControllerAdded);
-		//// Register for gamepad added and removed events.
-		//RawGameController::RawGameControllerRemoved += ref new EventHandler<RawGameController^>(&OnRawControllerRemoved);
-
-		return;
-	}
-	//if (hasRunOnce < 100) {
-	//	hasRunOnce++;
+	//if (hasRunOnce < 1) {
+		//hasRunOnce++;
+		//return;
 	//}
-	//if (hasRunOnce == 100) {
-	//	hasRunOnce++;
-
-
-	//	return;
-	//}
-
-
-
 
 	// Update scene objects.
 	m_timer.Tick([&]()
 		{
-
-
-			//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
-			bool upKeyPressed    = false;
-			bool downKeyPressed  = false;
-			bool leftKeyPressed  = false;
-			bool rightKeyPressed = false;
-
+			
 			double leftStickX   = 0.0;
 			double leftStickY   = 0.0;
 			double rightStickX  = 0.0;
@@ -178,18 +150,14 @@ void App1Main::Update()
 			double leftTrigger  = 0.0;
 			double rightTrigger = 0.0;
 
-
+			const float deadzoneRadius = 0.2f;
 
 
 	//clear controller debug text
 	controllerDebugText = "";
 	
 	numControllers = myRawGameControllers.size();
-
-	//remove ghost controllers
 	
-
-
 	//get the selected controllers index 
 	controllerDebugText += "Selected controller Index: " + to_string(selectedController) + newLine;
 
@@ -220,41 +188,34 @@ void App1Main::Update()
 
 		//update camera if user used a control stick
 					//update the camera controls - keyboard and mouse
-		Camera1->ForwardUnits = 0.0;
-		Camera1->SidewardUnits = 0.0;
-		if (upKeyPressed) {
-			Camera1->MoveCamera(0.1f);
-			Camera1->ForwardUnits = 0.1f;
+		//Camera1->ForwardUnits = 0.0;
+		//Camera1->SidewardUnits = 0.0;
+		//if (upKeyPressed) {
+		//	Camera1->MoveCamera(0.1f);
+		//	Camera1->ForwardUnits = 0.1f;
 
-		}
-		if (downKeyPressed) {
-			Camera1->MoveCamera(-0.1f);
-			Camera1->ForwardUnits = -0.1f;
+		//}
+		//if (downKeyPressed) {
+		//	Camera1->MoveCamera(-0.1f);
+		//	Camera1->ForwardUnits = -0.1f;
 
-		}
-		if (leftKeyPressed) {
-			Camera1->StrafeCamera(-0.1f);
-			Camera1->SidewardUnits = -0.1f;
-		}
-		if (rightKeyPressed) {
-			Camera1->StrafeCamera(0.1f);
-			Camera1->SidewardUnits = 0.1f;
-		}
+		//}
+		//if (leftKeyPressed) {
+		//	Camera1->StrafeCamera(-0.1f);
+		//	Camera1->SidewardUnits = -0.1f;
+		//}
+		//if (rightKeyPressed) {
+		//	Camera1->StrafeCamera(0.1f);
+		//	Camera1->SidewardUnits = 0.1f;
+		//}
 
 		//move camera with the left thumb stick
 		// Choose a deadzone. Readings inside this radius are ignored.
-		const float deadzoneRadius = 0.2f;
-		//const float deadzoneSquared = deadzoneRadius * deadzoneRadius;
 
-		// Pythagorean theorem: For a right triangle, hypotenuse^2 = (opposite side)^2 + (adjacent side)^2
-		//float oppositeSquared = leftStickY * leftStickY;
-		//float adjacentSquared = leftStickX * leftStickX;
-
-		// Accept and process input if true; otherwise, reject and ignore it.
-		//if ((oppositeSquared + adjacentSquared) < deadzoneSquared)
-		if(numControllers > 0)
 		{
+			
 			// Input accepted, process it.
+			//set camera position
 			if (abs(leftStickX) > deadzoneRadius) {
 				float moveSpeed = leftStickX * 0.05;
 				Camera1->MoveCamera(moveSpeed);
@@ -263,20 +224,42 @@ void App1Main::Update()
 				float moveSpeed = leftStickY * 0.05;
 				Camera1->StrafeCamera(moveSpeed);
 			}
-
+			//set camara view 
 			if (abs(rightStickX) > deadzoneRadius) {
 				float moveSpeed = rightStickX * 0.1;
-				Camera1->SetPitch(moveSpeed);                     // mouse y increases down, but pitch increases up
+				Camera1->SetPitch(moveSpeed);                   
 			}
 			if (abs(rightStickY) > deadzoneRadius) {
 				float moveSpeed = rightStickY * 0.1;
-				Camera1->SetYaw(moveSpeed);                     // mouse y increases down, but pitch increases up
+				Camera1->SetYaw(moveSpeed);                     
 			}
-
 		}
-
-		Camera1->UpdateCamera();
 	}//end controller check
+
+
+	//if (selectedController == -1 ) {
+	//	Camera1->ForwardUnits = 0.0;
+	//	Camera1->SidewardUnits = 0.0;
+	//	if (upKeyPressed) {
+	//		Camera1->MoveCamera(0.1f);
+	//		Camera1->ForwardUnits = 0.1f;
+
+	//	}
+	//	if (downKeyPressed) {
+	//		Camera1->MoveCamera(-0.1f);
+	//		Camera1->ForwardUnits = -0.1f;
+
+	//	}
+	//	if (leftKeyPressed) {
+	//		Camera1->StrafeCamera(-0.1f);
+	//		Camera1->SidewardUnits = -0.1f;
+	//	}
+	//	if (rightKeyPressed) {
+	//		Camera1->StrafeCamera(0.1f);
+	//		Camera1->SidewardUnits = 0.1f;
+	//	}
+
+	//}
 
 
 

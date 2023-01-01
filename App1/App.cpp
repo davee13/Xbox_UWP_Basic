@@ -56,7 +56,8 @@ App::App() :
 	upKeyPressed(false),
 	downKeyPressed(false),
 	leftKeyPressed(false),
-	rightKeyPressed(false)
+	rightKeyPressed(false),
+	tabKeyPressed(false)
 	//m_pitch(0),
 	//m_yaw(0)
 {
@@ -264,32 +265,40 @@ void App::Run()
 			//	= new Point(500, 500);
 
 			//update the camera controls - keyboard and mouse
-			Camera1->ForwardUnits = 0.0;
-			Camera1->SidewardUnits = 0.0;
-			if (upKeyPressed) {
-				Camera1->MoveCamera(0.1f);
-				Camera1->ForwardUnits = 0.1f;
-				
+			if (selectedController == -1) {
+				Camera1->ForwardUnits = 0.0;
+				Camera1->SidewardUnits = 0.0;
+				if (upKeyPressed) {
+					Camera1->MoveCamera(0.1f);
+					Camera1->ForwardUnits = 0.1f;
+
+				}
+				if (downKeyPressed) {
+					Camera1->MoveCamera(-0.1f);
+					Camera1->ForwardUnits = -0.1f;
+
+				}
+				if (leftKeyPressed) {
+					Camera1->StrafeCamera(-0.1f);
+					Camera1->SidewardUnits = -0.1f;
+				}
+				if (rightKeyPressed) {
+					Camera1->StrafeCamera(0.1f);
+					Camera1->SidewardUnits = 0.1f;
+				}
 			}
-			if (downKeyPressed) {
-				Camera1->MoveCamera(-0.1f);
-				Camera1->ForwardUnits = -0.1f;
-				
-			}
-			if (leftKeyPressed) {
-				Camera1->StrafeCamera(-0.1f);
-				Camera1->SidewardUnits = -0.1f;
-			}
-			if (rightKeyPressed) {
-				Camera1->StrafeCamera(0.1f);
-				Camera1->SidewardUnits = 0.1f;
-			}
+
 			
+			
+
+			//update any non-rendering code
+			m_main->Update();
+			
+			//update the camera when all inputs have been processed
 			Camera1->UpdateCamera();
 
 
-			m_main->Update();
-			
+
 			if (m_main->Render())
 			{
 				m_deviceResources->Present();
@@ -414,9 +423,11 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 	rotationDelta.y = -pointerDelta.y * ROTATION_GAIN.y;   // scale for control sensitivity
 
 	//// update our orientation based on the command
-Camera1->SetPitch(rotationDelta.y);                     // mouse y increases down, but pitch increases up
-Camera1->SetYaw(-rotationDelta.x);                     // yaw defined as CCW around y-axis
-
+	//keyboad and mouse control
+	if (selectedController == -1) {
+		Camera1->SetPitch(rotationDelta.y);                     // mouse y increases down, but pitch increases up
+		Camera1->SetYaw(-rotationDelta.x);                     // yaw defined as CCW around y-axis
+	}
 
 	//// limit pitch to straight up or straight down
 	//float limit = (float)(M_PI / 2) - 0.01f;
@@ -469,16 +480,10 @@ void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Co
 
 
 	//WASD movement
-	Camera1->ForwardUnits = 0.0;
-	Camera1->SidewardUnits = 0.0;
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
-		Camera1->MoveCamera(0.1f);
-		Camera1->ForwardUnits = 0.1f;
 		upKeyPressed = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
-		Camera1->MoveCamera(-0.1f);
-		Camera1->ForwardUnits = -0.1f;
 		downKeyPressed = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
@@ -499,9 +504,12 @@ void App1::App::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core
 	//	exit(-1);
 	//}
 
+	if (args->VirtualKey == Windows::System::VirtualKey::Tab) {
+		tabKeyPressed = false;
+	}
+
+
 	//WASD movement
-	Camera1->ForwardUnits = 0.0;
-	Camera1->SidewardUnits = 0.0;
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
 		upKeyPressed = false;
 	}
@@ -514,5 +522,8 @@ void App1::App::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core
 	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
 		rightKeyPressed = false;
 	}
+
+
+
 
 };

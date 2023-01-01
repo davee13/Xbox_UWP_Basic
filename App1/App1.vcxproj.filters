@@ -79,6 +79,12 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Soruce</Filter>
     </ClCompile>
+    <ClCompile Include="InputDevices.cpp">
+      <Filter>Soruce</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Soruce</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -100,6 +106,12 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevices.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
