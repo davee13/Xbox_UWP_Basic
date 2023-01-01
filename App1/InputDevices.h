@@ -10,6 +10,7 @@
 #include <string>
 
 #include "Utilities.h"
+#include "Camera.h"
 
 using namespace Windows::Gaming::Input;
 using namespace concurrency;
@@ -57,6 +58,7 @@ public:
 	void Poll(int i);
 
 private:
+	//control xbox controllers init state 
 	bool hasRunOnce;
 
 };//end game controller class
@@ -67,7 +69,57 @@ extern std::vector<gameControllerData*> gControllerData;
 extern int selectedController;
 extern int numControllers;
 
+extern void updateInputDevices();
 
+//mouse data handler
+extern class MouseData
+{
+public:
+	MouseData();
+	~MouseData();
+
+	float rotationDeltaX;
+	float rotationDeltaY;
+	bool mouseMoved;
+
+	//buttom click data
+	bool lBtnState;
+	bool RlBtnState;
+
+}; //end mouse data class
+
+
+extern MouseData* iMouse;
+
+
+
+
+//keyboard data handler
+extern class KeyboardData
+{
+public:
+	KeyboardData();
+	~KeyboardData();
+
+	//keys
+	bool tab;
+
+	bool up;
+	bool down;
+	bool left;
+	bool right;
+
+	bool A;
+	bool B;
+	bool W;
+	bool S;
+	bool D;
+
+
+}; //end mouse data class
+
+
+extern KeyboardData* iKeyboard;
 
 
 #endif

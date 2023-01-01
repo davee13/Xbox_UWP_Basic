@@ -314,4 +314,155 @@ void gameControllerData::Poll(int i)
 			}
 		}
 	}
+}//end game controller 
+
+
+
+
+//mouse data
+
+MouseData::~MouseData()
+{
+}
+//default constructor
+MouseData::MouseData()
+{
+	rotationDeltaX = 0.0;
+	rotationDeltaY = 0.0;
+	mouseMoved = false;
+
+	lBtnState = false;
+	RlBtnState = false;
+}
+
+//mouse object
+MouseData* iMouse;
+
+
+
+
+//keyboard data
+KeyboardData::~KeyboardData()
+{
+}
+//default constructor
+KeyboardData::KeyboardData()
+{
+	tab = false; 
+
+	up = false;
+	down = false;
+	left = false;
+	right = false;
+
+	A = false;
+	B = false;
+	W = false;
+	S = false;
+	D = false;
+}
+
+//mouse object
+KeyboardData* iKeyboard;
+
+void updateInputDevices()
+{
+	//clear controller debug text
+	controllerDebugText = "";
+	//get the selected controllers index 
+	controllerDebugText += "Selected controller Index: " + to_string(selectedController) + newLine;
+
+	numControllers = myRawGameControllers.size();
+	//is there a connected controller and it is not keyboard and mouse
+	if (numControllers > 0 && selectedController != -1) {
+
+		// loop through each connected controller object
+		for (DWORD i = 0; i < numControllers; i++)
+		{
+			gControllerData[i]->Poll(i);
+		}
+
+		double leftStickX = 0.0;
+		double leftStickY = 0.0;
+		double rightStickX = 0.0;
+		double rightStickY = 0.0;
+		double leftTrigger = 0.0;
+		double rightTrigger = 0.0;
+
+		const float deadzoneRadius = 0.2f;
+
+		int j = selectedController;
+		//set data based on indexed controller
+		{
+			leftStickX = gControllerData[j]->leftStickX;
+			leftStickY = gControllerData[j]->leftStickY;
+			rightStickX = gControllerData[j]->rightStickX;
+			rightStickY = gControllerData[j]->rightStickY;
+		}
+
+		//update camera if user used a control stick
+		{
+			//set camera position
+			if (abs(leftStickX) > deadzoneRadius) {
+				float moveSpeed = leftStickX * 0.05;
+				Camera1->MoveCamera(moveSpeed);
+			}
+			if (abs(leftStickY) > deadzoneRadius) {
+				float moveSpeed = leftStickY * 0.05;
+				Camera1->StrafeCamera(moveSpeed);
+			}
+			//set camara view 
+			if (abs(rightStickX) > deadzoneRadius) {
+				float moveSpeed = rightStickX * 0.1;
+				Camera1->SetPitch(moveSpeed);
+			}
+			if (abs(rightStickY) > deadzoneRadius) {
+				float moveSpeed = rightStickY * 0.1;
+				Camera1->SetYaw(moveSpeed);
+			}
+		}
+
+		controllerDebugText += "Controller " + to_string(j) + ": " + gControllerData[j]->cName;
+		controllerDebugText += newLine + "Button Count: " + to_string(gControllerData[j]->ButtonCount);
+		controllerDebugText += newLine + "HardWare ID: " + to_string(gControllerData[j]->HWVendor);
+		controllerDebugText += newLine;
+
+	}//end controller check
+
+			//update the camera controls - keyboard and mouse
+	if (selectedController == -1) {
+		Camera1->ForwardUnits = 0.0;
+		Camera1->SidewardUnits = 0.0;
+		if (iKeyboard->up) {
+			Camera1->MoveCamera(0.1f);
+			Camera1->ForwardUnits = 0.1f;
+
+		}
+		if (iKeyboard->down) {
+			Camera1->MoveCamera(-0.1f);
+			Camera1->ForwardUnits = -0.1f;
+
+		}
+		if (iKeyboard->left) {
+			Camera1->StrafeCamera(-0.1f);
+			Camera1->SidewardUnits = -0.1f;
+		}
+		if (iKeyboard->right) {
+			Camera1->StrafeCamera(0.1f);
+			Camera1->SidewardUnits = 0.1f;
+		}
+
+		//update our orientation based on the mouseMoved command
+		//keyboad and mouse control
+		if (iMouse->mouseMoved) {
+			Camera1->SetPitch(iMouse->rotationDeltaY);                     // mouse y increases down, but pitch increases up
+			Camera1->SetYaw(-iMouse->rotationDeltaX);                     // yaw defined as CCW around y-axis
+		}
+		iMouse->mouseMoved = false; //reset mouse move state
+
+		controllerDebugText += "Keyboard and Mouse";
+		controllerDebugText += newLine;
+	}
+
+
 }

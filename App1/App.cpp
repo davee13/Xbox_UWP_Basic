@@ -151,6 +151,7 @@ void App::SetWindow(CoreWindow^ window)
 	//CoreWindow^ window{ CoreWindow::GetForCurrentThread() };
 	window->Activate();
 	window->SetPointerCapture();
+	window->PointerCursor = nullptr; //hide the pointer - we are not clicking on windows or buttons
 //	iWindow = window;
 
 }
@@ -264,29 +265,7 @@ void App::Run()
 			//CoreWindow::PointerPosition::SetPointerCapture = TRUE;
 			//	= new Point(500, 500);
 
-			//update the camera controls - keyboard and mouse
-			if (selectedController == -1) {
-				Camera1->ForwardUnits = 0.0;
-				Camera1->SidewardUnits = 0.0;
-				if (upKeyPressed) {
-					Camera1->MoveCamera(0.1f);
-					Camera1->ForwardUnits = 0.1f;
 
-				}
-				if (downKeyPressed) {
-					Camera1->MoveCamera(-0.1f);
-					Camera1->ForwardUnits = -0.1f;
-
-				}
-				if (leftKeyPressed) {
-					Camera1->StrafeCamera(-0.1f);
-					Camera1->SidewardUnits = -0.1f;
-				}
-				if (rightKeyPressed) {
-					Camera1->StrafeCamera(0.1f);
-					Camera1->SidewardUnits = 0.1f;
-				}
-			}
 
 			
 			
@@ -401,14 +380,13 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 
 	
 
-	
+	iMouse->mouseMoved = true;
 
 	struct float2 {
 		float x;
 		float y;
 	};
 
-	float M_PI = 3.14169;
 	float rGain = 0.005;
 	float2 ROTATION_GAIN{ rGain, rGain };
 
@@ -416,18 +394,8 @@ void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _
 	pointerDelta.x = static_cast<float>(args->MouseDelta.X);
 	pointerDelta.y = static_cast<float>(args->MouseDelta.Y);
 
-	
-
-	float2 rotationDelta;
-	rotationDelta.x = -pointerDelta.x * ROTATION_GAIN.x;   // scale for control sensitivity
-	rotationDelta.y = -pointerDelta.y * ROTATION_GAIN.y;   // scale for control sensitivity
-
-	//// update our orientation based on the command
-	//keyboad and mouse control
-	if (selectedController == -1) {
-		Camera1->SetPitch(rotationDelta.y);                     // mouse y increases down, but pitch increases up
-		Camera1->SetYaw(-rotationDelta.x);                     // yaw defined as CCW around y-axis
-	}
+	iMouse->rotationDeltaX = -pointerDelta.x * ROTATION_GAIN.x;   // scale for control sensitivity
+	iMouse->rotationDeltaY = -pointerDelta.y * ROTATION_GAIN.y;   // scale for control sensitivity
 
 	//// limit pitch to straight up or straight down
 	//float limit = (float)(M_PI / 2) - 0.01f;
@@ -474,23 +442,23 @@ void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Co
 			selectedController = -1;
 		}
 		
-		tabKeyPressed = true;
+		iKeyboard->tab = true;
 		
 	}
 
 
 	//WASD movement
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
-		upKeyPressed = true;
+		iKeyboard->up = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
-		downKeyPressed = true;
+		iKeyboard->down = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
-		leftKeyPressed = true;
+		iKeyboard->left = true;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
-		rightKeyPressed = true;
+		iKeyboard->right = true;
 	}
 
 };
@@ -505,22 +473,22 @@ void App1::App::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core
 	//}
 
 	if (args->VirtualKey == Windows::System::VirtualKey::Tab) {
-		tabKeyPressed = false;
+		iKeyboard->tab = false;
 	}
 
 
 	//WASD movement
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
-		upKeyPressed = false;
+		iKeyboard->up = false;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::S || args->VirtualKey == Windows::System::VirtualKey::Down) {
-		downKeyPressed = false;
+		iKeyboard->down = false;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::A || args->VirtualKey == Windows::System::VirtualKey::Left) {
-		leftKeyPressed = false;
+		iKeyboard->left = false;
 	}
 	if (args->VirtualKey == Windows::System::VirtualKey::D || args->VirtualKey == Windows::System::VirtualKey::Right) {
-		rightKeyPressed = false;
+		iKeyboard->right = false;
 	}
 
 

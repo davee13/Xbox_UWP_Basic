@@ -51,7 +51,8 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	*/
 	//init the camera
 	Camera1 = new Camera();
-
+	iMouse = new MouseData();
+	iKeyboard = new KeyboardData();
 
 	//concurrency::critical_section myLock{};
 
@@ -142,151 +143,11 @@ void App1Main::Update()
 	// Update scene objects.
 	m_timer.Tick([&]()
 		{
-			
-			double leftStickX   = 0.0;
-			double leftStickY   = 0.0;
-			double rightStickX  = 0.0;
-			double rightStickY  = 0.0;
-			double leftTrigger  = 0.0;
-			double rightTrigger = 0.0;
 
-			const float deadzoneRadius = 0.2f;
+			updateInputDevices();
 
 
-	//clear controller debug text
-	controllerDebugText = "";
 	
-	numControllers = myRawGameControllers.size();
-	
-	//get the selected controllers index 
-	controllerDebugText += "Selected controller Index: " + to_string(selectedController) + newLine;
-
-	//is there a connected controller and it is not keyboard and mouse
-	if (numControllers > 0 && selectedController != -1) {
-
-		// loop through each connected controller object
-		for (DWORD i = 0; i < numControllers; i++)
-		{
-			gControllerData[i]->Poll(i);
-		}
-		
-		int j = selectedController;
-		//set data based on indexed controller
-		{
-			leftStickX = gControllerData[j]->leftStickX;
-			leftStickY = gControllerData[j]->leftStickY;
-			rightStickX = gControllerData[j]->rightStickX;
-			rightStickY = gControllerData[j]->rightStickY;
-
-			controllerDebugText += "Controller " + to_string(j) + ": " + gControllerData[j]->cName;
-			controllerDebugText += newLine + "Button Count: " + to_string(gControllerData[j]->ButtonCount);
-			controllerDebugText += newLine + "HardWare ID: " + to_string(gControllerData[j]->HWVendor);
-			controllerDebugText += newLine;
-		}
-
-
-
-		//update camera if user used a control stick
-					//update the camera controls - keyboard and mouse
-		//Camera1->ForwardUnits = 0.0;
-		//Camera1->SidewardUnits = 0.0;
-		//if (upKeyPressed) {
-		//	Camera1->MoveCamera(0.1f);
-		//	Camera1->ForwardUnits = 0.1f;
-
-		//}
-		//if (downKeyPressed) {
-		//	Camera1->MoveCamera(-0.1f);
-		//	Camera1->ForwardUnits = -0.1f;
-
-		//}
-		//if (leftKeyPressed) {
-		//	Camera1->StrafeCamera(-0.1f);
-		//	Camera1->SidewardUnits = -0.1f;
-		//}
-		//if (rightKeyPressed) {
-		//	Camera1->StrafeCamera(0.1f);
-		//	Camera1->SidewardUnits = 0.1f;
-		//}
-
-		//move camera with the left thumb stick
-		// Choose a deadzone. Readings inside this radius are ignored.
-
-		{
-			
-			// Input accepted, process it.
-			//set camera position
-			if (abs(leftStickX) > deadzoneRadius) {
-				float moveSpeed = leftStickX * 0.05;
-				Camera1->MoveCamera(moveSpeed);
-			}
-			if (abs(leftStickY) > deadzoneRadius) {
-				float moveSpeed = leftStickY * 0.05;
-				Camera1->StrafeCamera(moveSpeed);
-			}
-			//set camara view 
-			if (abs(rightStickX) > deadzoneRadius) {
-				float moveSpeed = rightStickX * 0.1;
-				Camera1->SetPitch(moveSpeed);                   
-			}
-			if (abs(rightStickY) > deadzoneRadius) {
-				float moveSpeed = rightStickY * 0.1;
-				Camera1->SetYaw(moveSpeed);                     
-			}
-		}
-	}//end controller check
-
-
-	//if (selectedController == -1 ) {
-	//	Camera1->ForwardUnits = 0.0;
-	//	Camera1->SidewardUnits = 0.0;
-	//	if (upKeyPressed) {
-	//		Camera1->MoveCamera(0.1f);
-	//		Camera1->ForwardUnits = 0.1f;
-
-	//	}
-	//	if (downKeyPressed) {
-	//		Camera1->MoveCamera(-0.1f);
-	//		Camera1->ForwardUnits = -0.1f;
-
-	//	}
-	//	if (leftKeyPressed) {
-	//		Camera1->StrafeCamera(-0.1f);
-	//		Camera1->SidewardUnits = -0.1f;
-	//	}
-	//	if (rightKeyPressed) {
-	//		Camera1->StrafeCamera(0.1f);
-	//		Camera1->SidewardUnits = 0.1f;
-	//	}
-
-	//}
-
-
-
-	// TODO: Replace this with your app's content update functions.
-//		auto m_localCollection = ref new Vector<RawGameController^>();
-
-
-//		
-
-//auto gamecontrollers = RawGameController::RawGameControllers;
-//for (auto gamecontroller : gamecontrollers)
-//{
-//	m_localCollection->Append(gamecontroller);
-//}
-
-//get the name of the controller
-//if (myRawGameControllers.size() == 1) {
-//	auto type = myRawGameControllers[0].GetAt(0);
-//	
-//	auto btnCount = type->ButtonCount;
-//	
-//	uint16_t  HWPid = type->HardwareProductId;
-//	uint16_t  HWVendor = type->HardwareVendorId;
-//	
-//	int b = 0;
-//}
-
 
 
 	m_fpsTextRenderer->Update(m_timer);
