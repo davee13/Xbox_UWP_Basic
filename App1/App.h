@@ -63,11 +63,7 @@ namespace App1
 		//float m_pitch;                     // mouse y increases down, but pitch increases up
 		//float m_yaw;
 		//std::unique_ptr<DirectX::Keyboard> m_keyboard;
-		bool upKeyPressed;
-		bool downKeyPressed;
-		bool leftKeyPressed;
-		bool rightKeyPressed;
-		bool tabKeyPressed;
+
 
 
 	};

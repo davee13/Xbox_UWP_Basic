@@ -1,6 +1,6 @@
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
-	matrix model;
+	matrix world;
 	matrix view;
 	matrix projection;
 };
@@ -30,7 +30,7 @@ PixelShaderInput main(VertexShaderInput input)
 
 	
 
-	pos = mul(pos, model);
+	pos = mul(pos, world);
 	pos = mul(pos, view);
 	pos = mul(pos, projection);
 	

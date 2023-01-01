@@ -24,9 +24,11 @@ namespace App1
 		void CreateWindowSizeDependentResources();
 		void ReleaseDeviceDependentResources();
 		
-		void Update(DX::StepTimer const& timer);
-		void UpdateModel1(DX::StepTimer const& timer);
+		//update positon, scale, rotation
+		void Update(DX::StepTimer const& timer, int index);
 		
+		
+		//render the object
 		void Render();
 		void UpdateCameraView(XMMATRIX inView);
 		void StartTracking();
@@ -36,7 +38,7 @@ namespace App1
 
 
 	private:
-		void Rotate(float radians);
+		
 		void PositionObject(float X, float Y, float Z);
 		void ScaleObject(float X, float Y, float Z);
 		void RotateObject(float X, float Y, float Z);
@@ -66,6 +68,10 @@ namespace App1
 		gameVector RotationOrigin;
 		gameVector RotationQuaternion;
 		gameVector Translation;
+
+		//Position, Scale Rotation
+		//float3 pos;
+
 
 
 		// Variables used with the rendering loop.

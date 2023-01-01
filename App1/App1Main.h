@@ -26,9 +26,6 @@ namespace App1
 
 		int hasRunOnce;
 
-		//default camera
-		//Camera Camera1;
-
 	private:
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;

@@ -8,20 +8,73 @@
 #include "InputDevices.h"
 #include "Utilities.h"
 
+#include "..\Common\DeviceResources.h"
+#include "..\Content\ShaderStructures.h"
+
 using namespace Platform::Collections;
 using namespace std;
-
-
-
-
 using namespace DirectX;
-
-
-
-
-
+using namespace App1;
 
 extern double mAccumulator;
+
+extern std::shared_ptr<DX::DeviceResources> g_deviceResources;
+
+
+struct MeshObject
+{
+	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_indexBuffer;
+
+	uint32	m_indexCount;
+
+	
+};
+
+
+extern MeshObject createCube();
+
+
+struct float2 {
+	float x;
+	float y;
+};
+struct float3 {
+	float x;
+	float y;
+	float z;
+};
+struct float4 {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+
+
+extern class CObjects
+{
+public:
+	CObjects();
+	~CObjects();
+
+	float3 Position;
+	float3 Scale;
+	float3 Rotation;
+
+private:
+
+};
+
+
+
+
+
+extern std::vector<CObjects*> ModelData;
+
+
+
 
 
 

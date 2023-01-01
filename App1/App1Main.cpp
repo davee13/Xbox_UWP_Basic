@@ -5,18 +5,16 @@
 
 //
 #include <collection.h>
-using namespace Platform::Collections;
+
 //
 //using namespace Platform;
 //using namespace Windows::Foundation;
-using namespace Windows::Gaming::Input;
-using namespace concurrency;
-
-
+//using namespace Windows::Gaming::Input;
 using namespace App1;
 using namespace Windows::Foundation;
 using namespace Windows::System::Threading;
 using namespace Concurrency;
+using namespace Platform::Collections;
 
 //#include <winrt/Windows.Gaming.Input.h>
 
@@ -38,6 +36,8 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	// Register to be notified if the Device is lost or recreated
 	m_deviceResources->RegisterDeviceNotify(this);
 
+	g_deviceResources = m_deviceResources;
+
 	// TODO: Replace this with your app's content initialization.
 	m_sceneRenderer = std::unique_ptr<Sample3DSceneRenderer>(new Sample3DSceneRenderer(m_deviceResources));
 
@@ -49,65 +49,22 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	m_timer.SetFixedTimeStep(true);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
-	//init the camera
+
+
+	//init the camera and input controls
 	Camera1 = new Camera();
 	iMouse = new MouseData();
 	iKeyboard = new KeyboardData();
 
-	//concurrency::critical_section myLock{};
 
-	//for (auto const& rawGameController : RawGameController::RawGameControllers)
-	//{
-	//	// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
-	//	concurrency::critical_section::scoped_lock lock{ myLock };
-	//	auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), rawGameController) };
+	//create the new objects class
+	ModelData.push_back(new CObjects);
+	ModelData[0]->Position.y = -1.0;
+	ModelData[0]->Scale = { 100,1,100 };
 
-	//	if (it == end(myRawGameControllers))
-	//	{
-	//		// This code assumes that you're interested in all raw game controllers.
-	//		myRawGameControllers.push_back(rawGameController);
-	//	}
-	//}
+	ModelData.push_back(new CObjects);
+	ModelData[1]->Scale = { 1,1,1 };
 
-	//int numControllers = myRawGameControllers.size();
-	//if (numControllers > 0) {
-	//	
-	//}
-
-	//int bb = 0;
-
-	//concurrency::critical_section myLock{};
-
-	//for (auto const& rawGameController : RawGameController::RawGameControllers)
-	//{
-	//	// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
-	//	concurrency::critical_section::scoped_lock lock{ myLock };
-	//	auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), rawGameController) };
-
-	//	if (it == end(myRawGameControllers))
-	//	{
-	//		// This code assumes that you're interested in all raw game controllers.
-	//		myRawGameControllers.push_back(rawGameController);
-	//	}
-	//}
-
-	//std::vector<RawGameController> myRawGameControllers;
-	//concurrency::critical_section myLock{};
-
-
-	////check for raw game controllers
-	//for (auto const& rawGameController : RawGameController::RawGameControllers())
-	//{
-	//	// Test whether the raw game controller is already in myRawGameControllers; if it isn't, add it.
-	//	concurrency::critical_section::scoped_lock lock{ myLock };
-	//	auto it{ std::find(begin(myRawGameControllers), end(myRawGameControllers), rawGameController) };
-
-	//	if (it == end(myRawGameControllers))
-	//	{
-	//		// This code assumes that you're interested in all raw game controllers.
-	//		myRawGameControllers.push_back(rawGameController);
-	//	}
-	//}
 
 	hasRunOnce = 0;
 	int b = 0;
@@ -214,13 +171,11 @@ bool App1Main::Render()
 	// Render the scene objects.
 	// TODO: Replace this with your app's content rendering functions.
 
-
-			//draw the ground plane
-	m_sceneRenderer->Update(m_timer);
-	m_sceneRenderer->Render();
-	//draw the rotating cube
-	m_sceneRenderer->UpdateModel1(m_timer);
-	m_sceneRenderer->Render();
+	//loop over each world object to render
+	for (int i = 0; i < ModelData.size(); i++) {
+		m_sceneRenderer->Update(m_timer, i);
+		m_sceneRenderer->Render();
+	}
 
 
 

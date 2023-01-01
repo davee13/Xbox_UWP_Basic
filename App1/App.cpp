@@ -52,14 +52,7 @@ IFrameworkView^ Direct3DApplicationSource::CreateView()
 
 App::App() :
 	m_windowClosed(false),
-	m_windowVisible(true),
-	upKeyPressed(false),
-	downKeyPressed(false),
-	leftKeyPressed(false),
-	rightKeyPressed(false),
-	tabKeyPressed(false)
-	//m_pitch(0),
-	//m_yaw(0)
+	m_windowVisible(true)
 {
 }
 
@@ -117,42 +110,21 @@ void App::SetWindow(CoreWindow^ window)
 	window->KeyUp +=
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyUp);
 
-	//window->KeyDown +=
-		//ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, App::CoreWindow_KeyDown);
-
-
-
-		// register handler for relative back button pressed - override default 'B' button behavior for xbox
+	// Prevent the XBOX controller B button from automatically closing the game
+	// register handler for relative back button pressed - override default 'B' button behavior for xbox
 	Windows::UI::Core::SystemNavigationManager::GetForCurrentView()->BackRequested +=
 		ref new EventHandler<BackRequestedEventArgs^>(this, &App::BackRequested);
 
-
-	// Register for gamepad added and removed events.
+	// Register gamepad added and removed events.
 	RawGameController::RawGameControllerAdded += ref new EventHandler<RawGameController^>(this, &App::OnRawControllerAdded);
 	RawGameController::RawGameControllerRemoved += ref new EventHandler<RawGameController^>(this, &App::OnRawControllerRemoved);
 
-
-
-
-		
-
-
-
-	//window->KeyUp +=
-	//	ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &App::OnKeyDown);
-
-			// Prevent the XBOX controller B button from automatically closing the game
-	//SystemNavigationManager->GetForCurrentView()->BackRequested += App_BackRequested;
-
-
 	m_deviceResources->SetWindow(window);
 
-
-	//CoreWindow^ window{ CoreWindow::GetForCurrentThread() };
 	window->Activate();
 	window->SetPointerCapture();
 	window->PointerCursor = nullptr; //hide the pointer - we are not clicking on windows or buttons
-//	iWindow = window;
+
 
 }
 
@@ -228,27 +200,6 @@ void App::Load(Platform::String^ entryPoint)
 	if (m_main == nullptr)
 	{
 		m_main = std::unique_ptr<App1Main>(new App1Main(m_deviceResources));
-
-
-		//RawGameController::RawGameControllerAdded += ref new EventHandler<RawGameController^>(
-		//	[](Platform::Object^, RawGameController^ args)
-		//{
-		//};
-				
-
-		////setup game controllers
-		//auto	m_localCollection = ref new Vector<RawGameController^>();
-
-		//auto gamecontrollers = RawGameController::RawGameControllers;
-		//for (auto gamecontroller : gamecontrollers)
-		//{
-		//	m_localCollection->Append(gamecontroller);
-		//}
-
-
-		//int b = 0;
-
-
 	}
 }
 
@@ -260,15 +211,6 @@ void App::Run()
 		if (m_windowVisible)
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
-
-			//keep mouse in the window
-			//CoreWindow::PointerPosition::SetPointerCapture = TRUE;
-			//	= new Point(500, 500);
-
-
-
-			
-			
 
 			//update any non-rendering code
 			m_main->Update();
@@ -377,15 +319,13 @@ void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 
 void App::OnMouseMoved(_In_ Windows::Devices::Input::MouseDevice^ mouseDevice, _In_ Windows::Devices::Input::MouseEventArgs^ args)
 {
-
-	
-
+	//flag that the mouse moved
 	iMouse->mouseMoved = true;
 
-	struct float2 {
-		float x;
-		float y;
-	};
+	//struct float2 {
+	//	float x;
+	//	float y;
+	//};
 
 	float rGain = 0.005;
 	float2 ROTATION_GAIN{ rGain, rGain };
