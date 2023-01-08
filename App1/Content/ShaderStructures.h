@@ -17,6 +17,10 @@ namespace App1
 		DirectX::XMFLOAT3 color;
 	};
 
+	struct VertexUV
+	{
+		DirectX::XMFLOAT2 UV;
+	};
 	
 	//float m_Yaw;
 }

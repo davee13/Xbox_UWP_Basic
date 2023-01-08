@@ -25,6 +25,11 @@ CObjects::CObjects()
 	MeshData.m_indexBuffer = nullptr;
 	MeshData.m_vertexBuffer = nullptr;
 	MeshData.m_indexCount = 0;
+
+	UV = { 1,1 };
+	iTexture0 = nullptr;
+	iTextureView0 = nullptr;
+
 }
 
 CObjects::~CObjects()

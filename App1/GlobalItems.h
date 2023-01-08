@@ -29,15 +29,12 @@ extern std::shared_ptr<DX::DeviceResources> g_deviceResources;
 
 struct MeshObject
 {
-	
 	//vertex and index buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_indexBuffer;
 
 	//index count
 	uint32	m_indexCount;
-
-	
 };
 
 
@@ -68,18 +65,22 @@ public:
 	CObjects();
 	~CObjects();
 
+	//world data
 	float3 Position;
 	float3 Scale;
 	float3 Rotation;
 
+	//texture data
+	float2 UV;
+	ID3D11Resource* iTexture0;
+	ID3D11ShaderResourceView* iTextureView0;
+
+
 	MeshObject MeshData;
-
-
 
 	void setMeshData(MeshObject inMeshData);
 
 private:
-
 
 
 };
@@ -89,12 +90,6 @@ private:
 
 
 extern std::vector<CObjects*> ModelData;
-
-
-
-
-
-
 
 
 

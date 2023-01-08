@@ -82,7 +82,8 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	
+	CD3D11_SHADER_RESOURCE_VIEW_DESC pDesc1;
+	iTextureView->GetDesc(&pDesc1);
 	
 	// Create the texture sampler state.
 	HRESULT result = d3dDevice->CreateSamplerState(&samplerDesc, &m_sampleState);
@@ -100,6 +101,8 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	ModelData[0]->setMeshData(createCube());
 	ModelData[0]->Position.y = -1.0;
 	ModelData[0]->Scale = { 1000,1,1000 };
+	ModelData[0]->UV.x = 100;
+	ModelData[0]->UV.y = 100;
 
 	//world center
 	ModelData.push_back(new CObjects);
@@ -213,7 +216,78 @@ bool App1Main::Render()
 		return false;
 	}
 
+	ID3D11Device* d3dDevice = g_deviceResources->GetD3DDevice();
+	// Create a texture sampler state description.
+	ID3D11SamplerState* m_sampleState;
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	//samplerDesc.BorderColor[0] = 0;
+	//samplerDesc.BorderColor[1] = 0;
+	//samplerDesc.BorderColor[2] = 0;
+	//samplerDesc.BorderColor[3] = 0;
+	//samplerDesc.MinLOD = 0;
+	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
+	CD3D11_SHADER_RESOURCE_VIEW_DESC pDesc1;
+	iTextureView->GetDesc(&pDesc1);
+
+	// Create the texture sampler state.
+	HRESULT result = d3dDevice->CreateSamplerState(&samplerDesc, &m_sampleState);
+
+
+	// Set the sampler state in the pixel shader.
+	g_deviceResources->GetD3DDeviceContext()->PSSetSamplers(0, 1, &m_sampleState);
+	// Set shader texture resource in the pixel shader.
+	g_deviceResources->GetD3DDeviceContext()->PSSetShaderResources(0, 1, &iTextureView);
+
+
+	ID3D11Buffer* g_pConstantBuffer11 = NULL;
+
+	struct VS_CONSTANT_BUFFER
+	{
+		DirectX::XMFLOAT2 UV;
+	} ;
+	
+	
+	VS_CONSTANT_BUFFER VsConstData;
+	//VsConstData.UV = 1.0;
+	VsConstData.UV.x = 1000;
+	VsConstData.UV.y = 1000;
+
+
+	// Fill in a buffer description.
+	D3D11_BUFFER_DESC cbDesc;
+	ZeroMemory(&cbDesc, sizeof(cbDesc));
+	cbDesc.ByteWidth = sizeof(VsConstData);
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+
+	// Fill in the subresource data.
+	D3D11_SUBRESOURCE_DATA InitData;
+	ZeroMemory(&InitData, sizeof(InitData));
+	InitData.pSysMem = &VsConstData;
+	InitData.SysMemPitch = 0;
+	InitData.SysMemSlicePitch = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = d3dDevice->CreateBuffer(&cbDesc, &InitData, &g_pConstantBuffer11);
+
+	//g_deviceResources->GetD3DDeviceContext()->UpdateSubresource(g_pConstantBuffer11, 0, 0, &cbDesc, 0, 0);
+
+
+	//UINT stride = sizeof(ModelViewProjectionConstantBuffer);
+	//UINT offset = sizeof(VertexUV);
+	// Now set the constant buffer in the vertex shader with the updated values.
+	g_deviceResources->GetD3DDeviceContext()->VSSetConstantBuffers(1, 1, &g_pConstantBuffer11);
 
 
 
