@@ -63,9 +63,36 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 
 
 	ID3D11Device* d3dDevice = deviceResources->GetD3DDevice();
-
-
 	HRESULT hr = CreateDDSTextureFromFile(d3dDevice,L"brick.dds", &iTexture, &iTextureView, 0, nullptr);
+
+	// Create a texture sampler state description.
+	ID3D11SamplerState* m_sampleState;
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	
+	
+	// Create the texture sampler state.
+	HRESULT result = d3dDevice->CreateSamplerState(&samplerDesc, &m_sampleState);
+
+	
+	// Set shader texture resource in the pixel shader.
+	deviceResources->GetD3DDeviceContext()->PSSetShaderResources(0, 1, &iTextureView);
+
+
+
 
 	//create the new objects class
 	//ground plane
@@ -77,7 +104,7 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	//world center
 	ModelData.push_back(new CObjects);
 	ModelData[1]->setMeshData(createCube());
-	ModelData[1]->Scale = { 1,100,1 };
+	ModelData[1]->Scale = { 1,1,1 };
 
 	//world corners
 	ModelData.push_back(new CObjects);
