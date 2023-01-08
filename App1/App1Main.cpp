@@ -56,14 +56,56 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	iMouse = new MouseData();
 	iKeyboard = new KeyboardData();
 
+	Camera1->PositionCamera(-5, 0, 0);
+
+
+	//load a texture .dds
+
+
+	ID3D11Device* d3dDevice = deviceResources->GetD3DDevice();
+
+
+	HRESULT hr = CreateDDSTextureFromFile(d3dDevice,L"brick.dds", &iTexture, &iTextureView, 0, nullptr);
 
 	//create the new objects class
+	//ground plane
 	ModelData.push_back(new CObjects);
+	ModelData[0]->setMeshData(createCube());
 	ModelData[0]->Position.y = -1.0;
-	ModelData[0]->Scale = { 100,1,100 };
+	ModelData[0]->Scale = { 1000,1,1000 };
 
+	//world center
 	ModelData.push_back(new CObjects);
-	ModelData[1]->Scale = { 1,1,1 };
+	ModelData[1]->setMeshData(createCube());
+	ModelData[1]->Scale = { 1,100,1 };
+
+	//world corners
+	ModelData.push_back(new CObjects);
+	ModelData[2]->setMeshData(createCube());
+	ModelData[2]->Position.x = 500.0;
+	ModelData[2]->Position.z = 500.0;
+	ModelData[2]->Scale = { 1,100,1 };
+	//world corners
+	ModelData.push_back(new CObjects);
+	ModelData[3]->setMeshData(createCube());
+	ModelData[3]->Position.x = -500.0;
+	ModelData[3]->Position.z = -500.0;
+	ModelData[3]->Scale = { 1,100,1 };
+	//world corners
+	ModelData.push_back(new CObjects);
+	ModelData[4]->setMeshData(createCube());
+	ModelData[4]->Position.x = -500.0;
+	ModelData[4]->Position.z = 500.0;
+	ModelData[4]->Scale = { 1,100,1 };
+	//world corners
+	ModelData.push_back(new CObjects);
+	ModelData[5]->setMeshData(createCube());
+	ModelData[5]->Position.x = 500.0;
+	ModelData[5]->Position.z = -500.0;
+	ModelData[5]->Scale = { 1,100,1 };
+
+
+
 
 
 	hasRunOnce = 0;

@@ -49,18 +49,23 @@ namespace App1
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
-		// Direct3D resources for cube geometry.
+		//vertex and pixel shaders		
+		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_vertexShader;
+		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
+
+		//buffer for shaders
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
+		ModelViewProjectionConstantBuffer     	m_constantBufferData;
+
+
+		// Direct3D resources for mesh geometry.
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_indexBuffer;
-		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_vertexShader;
-		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
-
-		// System resources for cube geometry.
-		ModelViewProjectionConstantBuffer	m_constantBufferData;
 		uint32	m_indexCount;
 
+		
+		
 		//control object world data
 		gameVector ScalingOrigin;
 		gameVector ScalingOrientationQuaternion;

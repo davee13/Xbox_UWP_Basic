@@ -26,6 +26,32 @@ Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceRes
 	
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
+
+
+	D3D11_RASTERIZER_DESC rasterDesc;
+
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	ID3D11RasterizerState* rasterizerState;
+
+	auto device = m_deviceResources->GetD3DDevice();
+
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	//ID3D11RasterizerState** m_rasterState = nullptr;
+device->CreateRasterizerState(&rasterDesc, &rasterizerState);
+
+	context->RSSetState(rasterizerState);
+
 	
 	
 }
@@ -88,7 +114,10 @@ void App1::Sample3DSceneRenderer::Update(DX::StepTimer const& timer, int index)
 	if (!m_tracking)
 	{
 
-		//update the camera
+		//update the mesh object  -index/vertex  buffers and  index data
+		m_indexCount = ModelData[index]->MeshData.m_indexCount;
+		m_vertexBuffer = ModelData[index]->MeshData.m_vertexBuffer;
+		m_indexBuffer = ModelData[index]->MeshData.m_indexBuffer;
 
 		// Convert degrees to radians, then convert seconds to rotation angle
 		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
@@ -204,7 +233,7 @@ void Sample3DSceneRenderer::Render( )
 	}
 
 	//update camera
-
+	auto device = m_deviceResources->GetD3DDevice();
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
@@ -262,6 +291,9 @@ void Sample3DSceneRenderer::Render( )
 		nullptr,
 		0
 		);
+
+
+
 
 	// Draw the objects.
 	context->DrawIndexed(
@@ -339,14 +371,21 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 	});
 
 	// Once both shaders are loaded, create the mesh.
-	//auto createCubeTask = (createPSTask && createVSTask).then([this] ()
-		//{
-	MeshObject cube;
-	cube = createCube();
+	auto createCubeTask = (createPSTask && createVSTask).then([this]()
+		{
 
-	m_indexCount = cube.m_indexCount;
-	m_vertexBuffer = cube.m_vertexBuffer;
-	m_indexBuffer = cube.m_indexBuffer;
+	//		MeshObject cube;
+	//cube = createCube();
+
+	//m_indexCount = cube.m_indexCount;
+	//m_vertexBuffer = cube.m_vertexBuffer;
+	//m_indexBuffer = cube.m_indexBuffer;
+
+
+
+		});
+
+
 
 		//// Load mesh vertices. Each vertex has a position and a color.
 		//static const VertexPositionColor cubeVertices[] = 
@@ -416,13 +455,13 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		//	);
 
 
-		m_loadingComplete = true;
+		//m_loadingComplete = true;
 	//}//);
 
 	// Once the cube is loaded, the object is ready to be rendered.
-	//createCubeTask.then([this] () {
-		//m_loadingComplete = true;
-	//});
+	createCubeTask.then([this] () {
+		m_loadingComplete = true;
+	});
 }
 
 void Sample3DSceneRenderer::ReleaseDeviceDependentResources()

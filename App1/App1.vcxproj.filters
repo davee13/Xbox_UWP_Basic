@@ -85,6 +85,9 @@
     <ClCompile Include="Utilities.cpp">
       <Filter>Soruce</Filter>
     </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Soruce</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -114,9 +117,15 @@
     <ClInclude Include="Utilities.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="brick.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>

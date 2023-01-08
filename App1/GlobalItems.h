@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "InputDevices.h"
 #include "Utilities.h"
+#include "DDSTextureLoader.h"
+
 
 #include "..\Common\DeviceResources.h"
 #include "..\Content\ShaderStructures.h"
@@ -18,14 +20,21 @@ using namespace App1;
 
 extern double mAccumulator;
 
+extern ID3D11Resource* iTexture;
+extern ID3D11ShaderResourceView* iTextureView;
+
+
 extern std::shared_ptr<DX::DeviceResources> g_deviceResources;
 
 
 struct MeshObject
 {
+	
+	//vertex and index buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>		m_indexBuffer;
 
+	//index count
 	uint32	m_indexCount;
 
 	
@@ -63,7 +72,15 @@ public:
 	float3 Scale;
 	float3 Rotation;
 
+	MeshObject MeshData;
+
+
+
+	void setMeshData(MeshObject inMeshData);
+
 private:
+
+
 
 };
 
