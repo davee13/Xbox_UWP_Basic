@@ -63,7 +63,7 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 
 
 	ID3D11Device* d3dDevice = deviceResources->GetD3DDevice();
-	HRESULT hr = CreateDDSTextureFromFile(d3dDevice,L"brick.dds", &iTexture, &iTextureView, 0, nullptr);
+	HRESULT hr = CreateDDSTextureFromFile(d3dDevice,L"assets/brick.dds", &iTexture, &iTextureView, 0, nullptr);
 
 	// Create a texture sampler state description.
 	ID3D11SamplerState* m_sampleState;
@@ -101,8 +101,8 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	ModelData[0]->setMeshData(createCube());
 	ModelData[0]->Position.y = -1.0;
 	ModelData[0]->Scale = { 1000,1,1000 };
-	ModelData[0]->UV.x = 100;
-	ModelData[0]->UV.y = 100;
+	ModelData[0]->UV.x = 1000;
+	ModelData[0]->UV.y = 1000;
 
 	//world center
 	ModelData.push_back(new CObjects);
@@ -115,24 +115,28 @@ App1Main::App1Main(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
 	ModelData[2]->Position.x = 500.0;
 	ModelData[2]->Position.z = 500.0;
 	ModelData[2]->Scale = { 1,100,1 };
+	ModelData[2]->UV = { 1, 20 };
 	//world corners
 	ModelData.push_back(new CObjects);
 	ModelData[3]->setMeshData(createCube());
 	ModelData[3]->Position.x = -500.0;
 	ModelData[3]->Position.z = -500.0;
 	ModelData[3]->Scale = { 1,100,1 };
+	ModelData[3]->UV = { 1, 20 };
 	//world corners
 	ModelData.push_back(new CObjects);
 	ModelData[4]->setMeshData(createCube());
 	ModelData[4]->Position.x = -500.0;
 	ModelData[4]->Position.z = 500.0;
 	ModelData[4]->Scale = { 1,100,1 };
+	ModelData[4]->UV = { 1, 20 };
 	//world corners
 	ModelData.push_back(new CObjects);
 	ModelData[5]->setMeshData(createCube());
 	ModelData[5]->Position.x = 500.0;
 	ModelData[5]->Position.z = -500.0;
 	ModelData[5]->Scale = { 1,100,1 };
+	ModelData[5]->UV = { 1, 20 };
 
 
 
@@ -247,48 +251,7 @@ bool App1Main::Render()
 	g_deviceResources->GetD3DDeviceContext()->PSSetShaderResources(0, 1, &iTextureView);
 
 
-	ID3D11Buffer* g_pConstantBuffer11 = NULL;
-
-	struct VS_CONSTANT_BUFFER
-	{
-		DirectX::XMFLOAT2 UV;
-	} ;
-	
-	
-	VS_CONSTANT_BUFFER VsConstData;
-	//VsConstData.UV = 1.0;
-	VsConstData.UV.x = 1000;
-	VsConstData.UV.y = 1000;
-
-
-	// Fill in a buffer description.
-	D3D11_BUFFER_DESC cbDesc;
-	ZeroMemory(&cbDesc, sizeof(cbDesc));
-	cbDesc.ByteWidth = sizeof(VsConstData);
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.MiscFlags = 0;
-	cbDesc.StructureByteStride = 0;
-
-	// Fill in the subresource data.
-	D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory(&InitData, sizeof(InitData));
-	InitData.pSysMem = &VsConstData;
-	InitData.SysMemPitch = 0;
-	InitData.SysMemSlicePitch = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = d3dDevice->CreateBuffer(&cbDesc, &InitData, &g_pConstantBuffer11);
-
-	//g_deviceResources->GetD3DDeviceContext()->UpdateSubresource(g_pConstantBuffer11, 0, 0, &cbDesc, 0, 0);
-
-
-	//UINT stride = sizeof(ModelViewProjectionConstantBuffer);
-	//UINT offset = sizeof(VertexUV);
-	// Now set the constant buffer in the vertex shader with the updated values.
-	g_deviceResources->GetD3DDeviceContext()->VSSetConstantBuffers(1, 1, &g_pConstantBuffer11);
-
+	auto context = g_deviceResources->GetD3DDeviceContext();
 
 
 	XMMATRIX view = Camera1->GetCameraViewMatrix();
@@ -297,7 +260,7 @@ bool App1Main::Render()
 	//XMMATRIX view = inCamera.GetCameraViewMatrix();
 	//m_sceneRenderer->UpdateCameraView(view);
 
-	auto context = m_deviceResources->GetD3DDeviceContext();
+	//auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// Reset the viewport to target the whole screen.
 	auto viewport = m_deviceResources->GetScreenViewport();

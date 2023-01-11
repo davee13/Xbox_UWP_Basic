@@ -36,6 +36,7 @@ namespace App1
 		void StopTracking();
 		bool IsTracking() { return m_tracking; }
 
+		float2 UV;
 
 	private:
 		

@@ -125,7 +125,7 @@
     <Image Include="Assets\StoreLogo.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="brick.dds">
+    <Image Include="Assets\brick.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>

@@ -348,12 +348,22 @@ KeyboardData::~KeyboardData()
 //default constructor
 KeyboardData::KeyboardData()
 {
-	tab = false; 
+
 
 	up = false;
 	down = false;
 	left = false;
 	right = false;
+
+	tab = false;
+	lShift = false;
+	rShift = false;
+	lCtrl = false;
+	rCtrl = false;
+	lAlt = false;
+	rAlt = false;
+	space = false;
+	enter = false;
 
 	A = false;
 	B = false;

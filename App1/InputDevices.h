@@ -102,12 +102,23 @@ public:
 	~KeyboardData();
 
 	//keys
-	bool tab;
 
 	bool up;
 	bool down;
 	bool left;
 	bool right;
+
+	bool tab;
+	bool lShift;
+	bool rShift;
+	bool lCtrl;
+	bool rCtrl;
+	bool lAlt;
+	bool rAlt;
+	bool space;
+	bool enter;
+
+
 
 	bool A;
 	bool B;

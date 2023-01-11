@@ -5,7 +5,10 @@ cbuffer ModelViewProjectionConstantBuffer : register(b0)
 	matrix projection;
 };
 
-
+cbuffer vertexDataBuffer : register(b1)
+{
+	float2 UV;
+};
 
 
 struct VertexShaderInput
@@ -45,8 +48,8 @@ PixelShaderInput main(VertexShaderInput input)
 	output.pos = pos;
 	output.opos = opos;
 
-	//output.color = input.color * UV.xyy;
-	output.tex = input.color * float3(100, 100, 0);// UV.xyy;
+	output.tex = input.color * UV.xyy;
+	//output.tex = input.color * float3(100, 100, 0);// UV.xyy;
 
 	return output;
 }

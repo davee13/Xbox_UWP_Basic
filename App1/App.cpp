@@ -386,6 +386,25 @@ void App1::App::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Co
 		
 	}
 
+	//control / shift / alt keys pressed
+	if (args->VirtualKey == Windows::System::VirtualKey::LeftControl) {
+		iKeyboard->lCtrl = true;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::RightControl) {
+		iKeyboard->rCtrl = true;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::LeftShift) {
+		iKeyboard->lShift = true;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::RightShift) {
+		iKeyboard->rShift = true;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::Space) {
+		iKeyboard->space = true;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::Enter) {
+		iKeyboard->enter = true;
+	}
 
 	//WASD movement
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {
@@ -416,6 +435,25 @@ void App1::App::OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core
 		iKeyboard->tab = false;
 	}
 
+	//control / shift / alt keys pressed
+	if (args->VirtualKey == Windows::System::VirtualKey::LeftControl) {
+		iKeyboard->lCtrl = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::RightControl) {
+		iKeyboard->rCtrl = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::LeftShift) {
+		iKeyboard->lShift = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::RightShift) {
+		iKeyboard->rShift = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::Space) {
+		iKeyboard->space = false;
+	}
+	if (args->VirtualKey == Windows::System::VirtualKey::Enter) {
+		iKeyboard->enter = false;
+	}
 
 	//WASD movement
 	if (args->VirtualKey == Windows::System::VirtualKey::W || args->VirtualKey == Windows::System::VirtualKey::Up) {

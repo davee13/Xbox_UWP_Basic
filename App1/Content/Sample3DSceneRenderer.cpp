@@ -22,7 +22,7 @@ Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceRes
 	RotationOrigin = { 0,0,0 };
 	RotationQuaternion = { 0,0,0 };
 	Translation = { 0,0,0 };
-	
+	UV = { 1,1 };
 	
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -141,6 +141,54 @@ void App1::Sample3DSceneRenderer::Update(DX::StepTimer const& timer, int index)
 		ScaleObject(scaleX, scaleY, scaleZ);
 		RotateObject(rotX, rotY, rotZ);
 		ComputeWorldMatrix();
+
+
+		//set uv data
+		UV = ModelData[index]->UV;
+
+
+		ID3D11Buffer* g_pConstantBuffer11 = NULL;
+		__declspec(align(16))
+			struct VS_CONSTANT_BUFFER
+		{
+			DirectX::XMFLOAT2 UV;
+			//float2 UV;
+		};
+
+
+		VS_CONSTANT_BUFFER VsConstData;
+		//VsConstData.UV = 1.0;
+		VsConstData.UV.x = UV.x;
+		VsConstData.UV.y = UV.y;
+
+
+		// Fill in a buffer description.
+	// Fill in a buffer description.
+		D3D11_BUFFER_DESC cbDesc;
+		ZeroMemory(&cbDesc, sizeof(cbDesc));
+		cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.MiscFlags = 0;
+		cbDesc.StructureByteStride = 0;
+
+		// Fill in the subresource data.
+	// Fill in the subresource data.
+		D3D11_SUBRESOURCE_DATA InitData;
+		ZeroMemory(&InitData, sizeof(InitData));
+		InitData.pSysMem = &VsConstData;
+		InitData.SysMemPitch = 0;
+		InitData.SysMemSlicePitch = 0;
+
+		// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+		HRESULT result = g_deviceResources->GetD3DDevice()->CreateBuffer(&cbDesc, &InitData, &g_pConstantBuffer11);
+
+		//g_deviceResources->GetD3DDeviceContext()->UpdateSubresource(g_pConstantBuffer11, 0, 0, &cbDesc, 0, 0);
+
+		// Now set the constant buffer in the vertex shader with the updated values.
+		g_deviceResources->GetD3DDeviceContext()->VSSetConstantBuffers(1, 1, &g_pConstantBuffer11);
+
 
 	}
 }
